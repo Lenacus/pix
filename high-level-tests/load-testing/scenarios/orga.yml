@@ -12,7 +12,7 @@ config:
 scenarios:
   - name: 'Connexion orga'
     flow:
-      - function: "getRandomUsername"
+      - function: "getRandomLogin"
 
       # Authenticate user
       - post:
@@ -20,7 +20,7 @@ scenarios:
           json:
             data:
               attributes:
-                password: "pix123"
+                password: "{{ password }}"
                 email: "{{ username }}"
           capture:
             - json: "$.data.attributes.token"

@@ -7,10 +7,12 @@
     "node": "10.15.3"
   },
   "scripts": {
-    "report": "artillery report report/index.json",
-    "start-localhost": "artillery run --config config/common.yml -e localhost -o report/index.json scenarios/signup-and-placement.yml",
-    "start-staging-connect": "artillery run --config config/common.yml -e staging -o report/index.json scenarios/connect.yml",
-    "start-orga": "artillery run --config config/common.yml -e staging -o report/index.json scenarios/orga.yml"
+    "report-connect": "artillery report report/connect.json",
+    "report-orga": "artillery report report/orga.json",
+    "report-signup-and-placement": "artillery report report/signup-and-placement.json",
+    "start-connect": "artillery run --config config/common.yml -e staging -o report/connect.json scenarios/connect.yml",
+    "start-orga": "artillery run --config config/common.yml -e staging -o report/orga.json scenarios/orga.yml"
+    "start-signup-and-placement": "artillery run --config config/common.yml -e localhost -o report/index.json scenarios/signup-and-placement.yml",
   },
   "author": "",
   "license": "ISC",
