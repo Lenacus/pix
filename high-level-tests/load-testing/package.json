@@ -8,7 +8,9 @@
   },
   "scripts": {
     "report": "artillery report report/index.json",
-    "start": "artillery run --config config/common.yml -e localhost -o report/index.json scenarios/signup-and-placement.yml"
+    "start-localhost": "artillery run --config config/common.yml -e localhost -o report/index.json scenarios/signup-and-placement.yml",
+    "start-staging-connect": "artillery run --config config/common.yml -e staging -o report/index.json scenarios/connect.yml",
+    "start-orga": "artillery run --config config/common.yml -e staging -o report/index.json scenarios/orga.yml"
   },
   "author": "",
   "license": "ISC",

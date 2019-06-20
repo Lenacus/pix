@@ -1,0 +1,91 @@
+config:
+  phases:
+    - duration: 10
+      arrivalCount: 500
+#    - duration: 60
+#      arrivalRate: 5
+#    - duration: 120
+#      arrivalRate: 5
+#      rampTo: 50
+#    - duration: 600
+#      arrivalRate: 50
+scenarios:
+  - name: 'Connexion orga'
+    flow:
+      - function: "getRandomUsername"
+
+      # Authenticate user
+      - post:
+          url: "/api/authentications"
+          json:
+            data:
+              attributes:
+                password: "pix123"
+                email: "{{ username }}"
+          capture:
+            - json: "$.data.attributes.token"
+              as: "accessToken"
+            - json: "$.data.id"
+              as: "userId"
+
+      # Get user profile
+      - get:
+          url: "/api/users/{{ userId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get user profile memberships
+      - get:
+          url: "/api/users/{{ userId }}/memberships"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          capture:
+            - json: "$.data[0].relationships.organization.data.id"
+              as: "organizationId"
+
+      # Get user profile
+      - get:
+          url: "/api/users/{{ userId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get organizations campaigns
+      - get:
+          url: "/api/organizations/{{ organizationId }}/campaigns"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+     # Get organizations campaigns
+      - get:
+          url: "/api/organizations/{{ organizationId }}/campaigns"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          capture:
+            - json: "$.data"
+              as: "campaigns"
+
+      - function: "getRandomCampaignId"
+
+      # Get campaign
+      - get:
+          url: "/api/campaigns/{{ campaignId }}?include=targetProfile"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get campaign report
+      - get:
+          url: "/api/campaigns/{{ campaignId }}/campaign-report"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get campaign collective results
+      - get:
+          url: "/api/campaigns/{{ campaignId }}/collective-results"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get campaign collective results
+      - get:
+          url: "/api/campaigns/{{ campaignId }}/collective-results"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"

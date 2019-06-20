@@ -1,0 +1,12 @@
+config:
+  phases:
+    - duration: 60
+      arrivalRate: 100
+scenarios:
+  - name: 'Check API'
+    flow:
+      - get:
+          url: "/api"
+      - get:
+          url: "/api/healthcheck/db"
+

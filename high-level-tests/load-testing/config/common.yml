@@ -4,4 +4,4 @@ config:
     localhost:
       target: http://localhost:3000
     staging:
-      target: https://integration.pix.fr
+      target: https://pix-api-integration-pr561.scalingo.io
