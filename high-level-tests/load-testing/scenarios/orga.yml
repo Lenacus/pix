@@ -1,7 +1,7 @@
 config:
   phases:
     - duration: 10
-      arrivalCount: 500
+      arrivalCount: 50
 #    - duration: 60
 #      arrivalRate: 5
 #    - duration: 120
@@ -9,19 +9,24 @@ config:
 #      rampTo: 50
 #    - duration: 600
 #      arrivalRate: 50
+  payload:
+    path: "../payload/{{ $environment }}/users.csv"
+    fields:
+      - "username"
+      - "password"
+    order: random
+    skipHeader: true
 scenarios:
-  - name: 'Connexion orga'
+  - name: 'Connexion Orga'
     flow:
-      - function: "getRandomLogin"
-
       # Authenticate user
       - post:
           url: "/api/authentications"
           json:
             data:
               attributes:
-                password: "{{ password }}"
                 email: "{{ username }}"
+                password: "{{ password }}"
           capture:
             - json: "$.data.attributes.token"
               as: "accessToken"
