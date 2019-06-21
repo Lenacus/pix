@@ -10,9 +10,11 @@
     "report-connect": "artillery report report/connect.json",
     "report-orga": "artillery report report/orga.json",
     "report-signup-and-placement": "artillery report report/signup-and-placement.json",
+    "report-start-competence-v2": "artillery report report/start-competence-v2.json",
     "start-connect": "artillery run --config config/common.yml -e staging -o report/connect.json scenarios/connect.yml",
     "start-orga": "artillery run --config config/common.yml -e staging -o report/orga.json scenarios/orga.yml",
-    "start-signup-and-placement": "artillery run --config config/common.yml -e localhost -o report/index.json scenarios/signup-and-placement.yml"
+    "start-signup-and-placement": "artillery run --config config/common.yml -e localhost -o report/signup-and-placement.json scenarios/signup-and-placement.yml",
+    "start-competence-v2": "artillery run --config config/common.yml -e staging -o report/start-competence-v2.json scenarios/signup-and-competence-test.yml"
   },
   "author": "",
   "license": "ISC",
