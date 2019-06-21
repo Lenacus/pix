@@ -3,6 +3,7 @@ const faker = require('faker');
 module.exports = {
   foundNextChallenge,
   getRandomCampaignId,
+  getRandomCampaignParticipation,
   setupSignupFormData,
 };
 
@@ -15,7 +16,22 @@ function getRandomCampaignId(context, events, done) {
   const campaigns = context.vars['campaigns'];
   if (campaigns) {
     const randomCampaign = campaigns[Math.floor(Math.random() * campaigns.length)];
-    context.vars['campaignId'] = randomCampaign.id;
+    if (randomCampaign) {
+      context.vars['campaignId'] = randomCampaign.id;
+    }
+  }
+  return done();
+}
+
+function getRandomCampaignParticipation(context, events, done) {
+  const campaignParticipations = context.vars['campaignParticipations'];
+  if (campaignParticipations) {
+    const randomCampaignParticipation = campaignParticipations[
+      Math.floor(Math.random() * campaignParticipations.length)
+    ];
+    if (randomCampaignParticipation) {
+      context.vars['campaignParticipationId'] = randomCampaignParticipation.id;
+    }
   }
   return done();
 }

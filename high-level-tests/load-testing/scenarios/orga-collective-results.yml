@@ -1,14 +1,7 @@
 config:
   phases:
-    - duration: 10
-      arrivalCount: 50
-#    - duration: 60
-#      arrivalRate: 5
-#    - duration: 120
-#      arrivalRate: 5
-#      rampTo: 50
-#    - duration: 600
-#      arrivalRate: 50
+    - duration: 180
+      arrivalCount: 20
   payload:
     path: "../payload/{{ $environment }}/users.csv"
     fields:
@@ -17,8 +10,9 @@ config:
     order: random
     skipHeader: true
 scenarios:
-  - name: 'Connexion Orga'
+  - name: 'Connexion Orga pour lecture des résultats collectifs'
     flow:
+      - log: "Scenario — Connexion Orga pour lecture des résultats collectifs"
       # Authenticate user
       - post:
           url: "/api/authentications"
@@ -60,7 +54,7 @@ scenarios:
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
-     # Get organizations campaigns
+      # Get organizations campaigns
       - get:
           url: "/api/organizations/{{ organizationId }}/campaigns"
           headers:
