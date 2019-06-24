@@ -1,9 +1,9 @@
 config:
   phases:
     - duration: 60
-      arrivalCount: 10
+      arrivalCount: 50
 scenarios:
-  - name: 'Inscription et positionnement V2'
+  - name: 'Inscription et positionnement'
     flow:
       - function: "setupSignupFormData"
 
@@ -45,18 +45,6 @@ scenarios:
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
-      # Get pix score
-      - get:
-          url: "/api/users/{{ userId }}/pixscore"
-          headers:
-            Authorization: "Bearer {{ accessToken }}"
-
-      # Get score card
-      - get:
-          url: "/api/users/{{ userId }}/scorecards"
-          headers:
-            Authorization: "Bearer {{ accessToken }}"
-
       # Fetch campaign participations
       - get:
           url: "/api/users/{{ userId }}/campaign-participations"
@@ -64,23 +52,37 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       ### ----------------- ###
-      ### From page /profilv2 ###
+      ### From page /compte ###
       ### ----------------- ###
 
-      # Start a competence competence
+      # Get first competence
+      - get:
+          url: "/api/courses/recNPB7dTNt5krlMA"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      - get:
+          url: "/api/assessments?filter[type]=PLACEMENT&filter[courseId]=recNPB7dTNt5krlMA&filter[resumable]=true"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
 
       # Create assessment for competence
       - post:
-          url: "/api/competence-evaluations"
+          url: "/api/assessments"
           headers:
             Authorization: "Bearer {{ accessToken }}"
           json:
             data:
               attributes:
-                competence-id: "recsvLz0W2ShyfD63"
-              type: "competence-evaluations"
+                type: PLACEMENT
+              relationships:
+                course:
+                  data:
+                    type: courses
+                    id: "recNPB7dTNt5krlMA"
+              type: assessments
           capture:
-            json: "$.data.relationships.assessment.data.id"
+            json: "$.data.id"
             as: "assessmentId"
 
       # Fetch assessment
@@ -89,7 +91,7 @@ scenarios:
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
-      # Fetch assessment next challenge
+          # Fetch assessment next challenge
       - get:
           url: "/api/assessments/{{ assessmentId }}/next"
           headers:
@@ -151,12 +153,6 @@ scenarios:
                 json: "$.data.id"
                 as: "challengeId"
 
-          # Get progression
-          - get:
-              url: "/api/progressions/progression-{{ assessmentId }}"
-              headers:
-                Authorization: "Bearer {{ accessToken }}"
-
         whileTrue: "foundNextChallenge"
 
       # Fetch assessment
@@ -165,18 +161,32 @@ scenarios:
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
+      # Post assessment-result
+      - post:
+          url: "/api/assessment-results"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          json:
+            data:
+              relationships:
+                assessment:
+                  data:
+                    type: assessments
+                    id: "{{ assessmentId }}"
+              type: assessment-results
+
       ### ----------------------------------------------------- ###
       ### From page /assessment-result, go back to profile page ###
       ### ----------------------------------------------------- ###
 
-      # Get pix score
+      # Get user profile
       - get:
-          url: "/api/users/{{ userId }}/pixscore"
+          url: "/api/users/me"
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
-      # Get score card
+      # Fetch campaign participations
       - get:
-          url: "/api/users/{{ userId }}/scorecards"
+          url: "/api/users/{{ userId }}/campaign-participations"
           headers:
             Authorization: "Bearer {{ accessToken }}"
