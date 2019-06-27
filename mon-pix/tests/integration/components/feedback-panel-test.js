@@ -106,7 +106,7 @@ describe('Integration | Component | feedback-panel', function() {
     it('clicking on "send" button should save the feedback into the store / API and display the "mercix" view', async function() {
       // given
       const CONTENT_VALUE = 'Prêtes-moi ta plume, pour écrire un mot';
-      await setContent (CONTENT_VALUE);
+      await setContent(CONTENT_VALUE);
 
       // when
       await click(BUTTON_SEND);

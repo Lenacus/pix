@@ -11,6 +11,7 @@ describe('Unit | Route | campaigns/campaign-landing-page', function() {
   setupTest();
 
   let storeStub;
+  let sessionStub;
   let createRecordStub;
   let queryRecordStub;
   let queryStub;
@@ -19,17 +20,15 @@ describe('Unit | Route | campaigns/campaign-landing-page', function() {
     queryStub = sinon.stub();
     createRecordStub = sinon.stub();
     queryRecordStub = sinon.stub();
-    storeStub = Service.extend({ queryRecord: queryRecordStub, query: queryStub, createRecord: createRecordStub });
-    this.owner.register('service:store', storeStub);
-
-    this.owner.register('service:session', Service.extend({
+    storeStub = Service.create({ queryRecord: queryRecordStub, query: queryStub, createRecord: createRecordStub });
+    sessionStub = Service.create({
       isAuthenticated: true,
       data: {
         authenticated: {
           userId: 1435
         }
       }
-    }));
+    });
   });
 
   describe('#model', function() {
@@ -37,6 +36,8 @@ describe('Unit | Route | campaigns/campaign-landing-page', function() {
     it('should retrieve the campaign from its code', function() {
       // given
       const route = this.owner.lookup('route:campaigns/campaign-landing-page');
+      route.set('store', storeStub);
+      route.set('session', sessionStub);
 
       const params = {
         campaign_code: 'AQST765'
@@ -66,6 +67,8 @@ describe('Unit | Route | campaigns/campaign-landing-page', function() {
       const campaignParticipation = { save: sinon.stub() };
       campaignParticipation.save.resolves();
       const route = this.owner.lookup('route:campaigns/campaign-landing-page');
+      route.set('store', storeStub);
+      route.set('session', sessionStub);
       route.transitionTo = sinon.stub();
 
       // when
