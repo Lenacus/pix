@@ -63,6 +63,10 @@ scenarios:
             - json: "$.data"
               as: "campaigns"
 
+      - function : "getThinkingTime"
+      - log: "User is thinking during {{ thinkingTime }} seconds"
+      - think : {{ thinkingTime }}
+
       - function: "getRandomCampaignId"
 
       # Get campaign
@@ -77,6 +81,10 @@ scenarios:
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
+      - function : "getThinkingTime"
+      - log: "User is thinking during {{ thinkingTime }} seconds"
+      - think : {{ thinkingTime }}
+
       # Get campaign collective results
       - get:
           url: "/api/campaigns/{{ campaignId }}/collective-results"
@@ -88,3 +96,7 @@ scenarios:
           url: "/api/campaigns/{{ campaignId }}/collective-results"
           headers:
             Authorization: "Bearer {{ accessToken }}"
+
+      - function : "getThinkingTime"
+      - log: "User is thinking during {{ thinkingTime }} seconds"
+      - think : {{ thinkingTime }}

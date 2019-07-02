@@ -4,6 +4,7 @@ module.exports = {
   foundNextChallenge,
   getRandomCampaignId,
   getRandomCampaignParticipation,
+  getThinkingTime,
   setupSignupFormData,
 };
 
@@ -32,6 +33,20 @@ function getRandomCampaignParticipation(context, events, done) {
     if (randomCampaignParticipation) {
       context.vars['campaignParticipationId'] = randomCampaignParticipation.id;
     }
+  }
+  return done();
+}
+
+function getThinkingTime(context, events, done) {
+  const minOrder = context.vars['minThinkingTime'];
+  const maxOrder = context.vars['maxThinkingTime'];
+
+  if (context.vars['needRandomThinkingTime'] === true) {
+    const min = Math.ceil(minOrder);
+    const max = Math.floor(maxOrder);
+    context.vars['thinkingTime'] = Math.floor(Math.random() * (max - min + 1)) + min;
+  } else {
+    context.vars['thinkingTime'] = Math.floor((minOrder + maxOrder) / 2);
   }
   return done();
 }

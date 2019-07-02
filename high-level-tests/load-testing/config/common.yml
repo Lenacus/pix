@@ -5,3 +5,8 @@ config:
       target: http://localhost:3000
     staging:
       target: https://pix-api-integration-pr561.scalingo.io
+  variables:
+    # Thinking time is in seconds
+    needRandomThinkingTime: true
+    minThinkingTime: 5
+    maxThinkingTime: 30
