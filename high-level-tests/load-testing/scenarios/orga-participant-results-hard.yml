@@ -63,6 +63,10 @@ scenarios:
             - json: "$.data"
               as: "campaigns"
 
+      - function: "getThinkingTime"
+      - log: "User is thinking during {{ thinkingTime }} seconds"
+      - think: {{ thinkingTime }}
+
       - function: "getRandomCampaignId"
 
       # Get campaign
@@ -77,6 +81,10 @@ scenarios:
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
+      - function: "getThinkingTime"
+      - log: "User is thinking during {{ thinkingTime }} seconds"
+      - think: {{ thinkingTime }}
+
       # Get campaign all participations
       - get:
           url: "/api/campaign-participations?filter[campaignId]={{ campaignId }}&include=user,campaign-participation-result&page[number]=1&page[size]=10"
@@ -85,6 +93,10 @@ scenarios:
           capture:
             - json: "$.data"
               as: "campaignParticipations"
+
+      - function: "getThinkingTime"
+      - log: "User is thinking during {{ thinkingTime }} seconds"
+      - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignParticipation"
 
@@ -99,3 +111,7 @@ scenarios:
           url: "/api/campaign-participations/{{ campaignParticipationId }}/campaign-participation-result"
           headers:
             Authorization: "Bearer {{ accessToken }}"
+
+      - function: "getThinkingTime"
+      - log: "User is thinking during {{ thinkingTime }} seconds"
+      - think: {{ thinkingTime }}
