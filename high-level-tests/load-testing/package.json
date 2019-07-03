@@ -7,6 +7,7 @@
     "node": "10.15.3"
   },
   "scripts": {
+    "report-campaign": "artillery report report/campaign.json",
     "report-connect": "artillery report report/connect.json",
     "report-orga-collective-results": "artillery report report/orga-collective-results.json",
     "report-orga-participant-results": "artillery report report/orga-participant-results.json",
@@ -27,6 +28,7 @@
 
     "report-all": "npm run report-users & npm run report-orga",
 
+    "start-campaign": "artillery run --config config/common.yml -e localhost -o report/campaign.json scenarios/campaign.yml",
     "start-connect": "artillery run --config config/common.yml -e localhost -o report/connect.json scenarios/connect.yml",
     "start-competence-v2": "artillery run --config config/common.yml -e localhost -o report/start-competence-v2.json scenarios/signup-and-competence-test.yml",
     "start-signup-and-placement": "artillery run --config config/common.yml -e localhost -o report/signup-and-placement.json scenarios/signup-and-placement.yml",

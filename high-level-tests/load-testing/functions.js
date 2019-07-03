@@ -2,15 +2,28 @@ const faker = require('faker');
 
 module.exports = {
   foundNextChallenge,
+  getRandomAnswerId,
   getRandomCampaignId,
   getRandomCampaignParticipation,
   getThinkingTime,
   setupSignupFormData,
+  setupSignupFormDataForCampaign,
 };
 
 function foundNextChallenge(context, next) {
   const continueLooping = !!context.vars.challengeId;
   return next(continueLooping);
+}
+
+function getRandomAnswerId(context, events, done) {
+  const answers = context.vars['answers'];
+  if (answers) {
+    const randomAnswer = answers[Math.floor(Math.random() * answers.length)];
+    if (randomAnswer) {
+      context.vars['answerId'] = randomAnswer.id;
+    }
+  }
+  return done();
 }
 
 function getRandomCampaignId(context, events, done) {
@@ -56,5 +69,14 @@ function setupSignupFormData(context, events, done) {
   context.vars['lastName'] = faker.name.lastName();
   context.vars['email'] = faker.internet.email();
   context.vars['password'] = 'L0rem1psum';
+  return done();
+}
+
+function setupSignupFormDataForCampaign(context, events, done) {
+  context.vars['firstName'] = faker.name.firstName();
+  context.vars['lastName'] = faker.name.lastName();
+  context.vars['email'] = faker.internet.email();
+  context.vars['password'] = 'L0rem1psum';
+  context.vars['participantExternalId'] = faker.name.firstName();
   return done();
 }

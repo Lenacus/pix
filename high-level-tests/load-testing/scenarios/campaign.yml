@@ -1,0 +1,281 @@
+config:
+  phases:
+    - duration: 10
+      arrivalCount: 1
+  payload:
+    path: "../payload/{{ $environment }}/campaigns.csv"
+    fields:
+      - "campaignCode"
+    order: random
+    skipHeader: true
+scenarios:
+  - name: 'Participation à une campagne'
+    flow:
+      - function: "setupSignupFormDataForCampaign"
+
+      ### ---------------------- ###
+      ### From page /inscription ###
+      ### ---------------------- ###
+
+      # Access to campaign event
+      - get:
+          url: "/api/campaigns?filter[code]={{ campaignCode }}"
+
+      # Submit user form
+      - post:
+          url: "/api/users"
+          json:
+            data:
+              attributes:
+                first-name: "{{ firstName }}"
+                last-name: "{{ lastName }}"
+                email: "{{ email }}"
+                password: "{{ password }}"
+                cgu: true
+                recaptcha-token: "some.recaptcha.token"
+              type: "users"
+
+      # Authenticate user
+      - post:
+          url: "/api/authentications"
+          json:
+            data:
+              attributes:
+                password: "{{ password }}"
+                email: "{{ email }}"
+          capture:
+            - json: "$.data.attributes.token"
+              as: "accessToken"
+            - json: "$.data.id"
+              as: "userId"
+
+      # Get user profile
+      - get:
+          url: "/api/users/me"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Access to campaign event
+      - get:
+          url: "/api/campaigns?filter[code]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get assessment
+      - get:
+          url: "/api/assessments?filter[type]=SMART_PLACEMENT&filter[codeCampaign]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get assessment
+      - get:
+          url: "/api/assessments?filter[type]=SMART_PLACEMENT&filter[codeCampaign]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Access to campaign event
+      - get:
+          url: "/api/campaigns?filter[code]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          capture:
+            - json: "$.data[0]"
+              as: "campaign"
+
+      # Declare campaign participation
+      - post:
+          url: "/api/campaign-participations"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          json:
+            data:
+              attributes:
+                created-at: "null"
+                is-shared: "false"
+                participant-external-id: "{{ participantExternalId }}"
+              relationships:
+                campaign:
+                  data:
+                    id: "{{ campaign.id }}"
+                    type: "{{ campaign.types }}"
+              type: "campaign-participations"
+
+      # Access to campaign event
+      - get:
+          url: "/api/campaigns?filter[code]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get assessment
+      - get:
+          url: "/api/assessments?filter[type]=SMART_PLACEMENT&filter[codeCampaign]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          capture :
+            - json: "$.data[0].id"
+              as: "assessmentId"
+
+      # Get assessment by id
+      - get:
+          url: "/api/assessments/{{ assessmentId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Access to campaign event
+      - get:
+          url: "/api/campaigns?filter[code]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get assessment
+      - get:
+          url: "/api/assessments?filter[type]=SMART_PLACEMENT&filter[codeCampaign]={{ campaignCode }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get assessment by id
+      - get:
+          url: "/api/assessments/{{ assessmentId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get assessment by id
+      - get:
+          url: "/api/assessments/{{ assessmentId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get assessment by id
+      - get:
+          url: "/api/assessments/{{ assessmentId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      ### ----------------- ###
+      ### From page assessment in campaign ###
+      ### ----------------- ###
+
+      # Fetch assessment next challenge
+      - get:
+          url: "/api/assessments/{{ assessmentId }}/next"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          capture:
+            json: "$.data.id"
+            as: "challengeId"
+
+      - loop:
+          # Fetch answer (if exists)
+          - get:
+              url: "/api/answers?assessment={{ assessmentId }}&challenge={{ challengeId }}"
+              headers:
+                Authorization: "Bearer {{ accessToken }}"
+
+          # Fetch next challenge details
+          - get:
+              url: "/api/challenges/{{ challengeId }}"
+              headers:
+                Authorization: "Bearer {{ accessToken }}"
+
+          # Access to campaign event
+          - get:
+              url: "/api/campaigns?filter[code]={{ campaignCode }}"
+              headers:
+                Authorization: "Bearer {{ accessToken }}"
+
+          ### -------------------------------------------------------------- ###
+          ### From page /assessments/:assessment_id/challenges/:challenge_id ###
+          ### -------------------------------------------------------------- ###
+
+          # Thinking time
+          - function: "getThinkingTime"
+          - log: "User is thinking during {{ thinkingTime }} seconds"
+          - think: {{ thinkingTime }}
+
+          # Submit "skip" answer
+          - post:
+              url: "/api/answers"
+              headers:
+                Authorization: "Bearer {{ accessToken }}"
+              json:
+                data:
+                  attributes:
+                    value: "#ABAND#"
+                    elapsed-time: 595
+                  relationships:
+                    assessment:
+                      data:
+                        type: "assessments"
+                        id: "{{ assessmentId }}"
+                    challenge:
+                      data:
+                        type: "challenges"
+                        id: "{{ challengeId }}"
+                  type: answers
+
+          # Fetch assessment
+          - get:
+              url: "/api/assessments/{{ assessmentId }}"
+              headers:
+                Authorization: "Bearer {{ accessToken }}"
+
+          # Fetch assessment next challenge
+          - get:
+              url: "/api/assessments/{{ assessmentId }}/next"
+              headers:
+                Authorization: "Bearer {{ accessToken }}"
+              capture:
+                json: "$.data.id"
+                as: "challengeId"
+
+        whileTrue: "foundNextChallenge"
+
+      # Fetch assessment
+      - get:
+          url: "/api/assessments/{{ assessmentId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+          capture:
+            json: "$.data.relationships.answers.data"
+            as: "answers"
+
+      # Get progression
+      - get:
+          url: "/api/progressions/progression-{{ assessmentId }}"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get correction
+      - function: "getRandomAnswerId"
+      - get :
+          url: "/api/answers/{{ answerId }}/correction"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get correction
+      - function: "getRandomAnswerId"
+      - get :
+          url: "/api/answers/{{ answerId }}/correction"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get correction
+      - function: "getRandomAnswerId"
+      - get :
+          url: "/api/answers/{{ answerId }}/correction"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get correction
+      - function: "getRandomAnswerId"
+      - get :
+          url: "/api/answers/{{ answerId }}/correction"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+
+      # Get correction
+      - function: "getRandomAnswerId"
+      - get :
+          url: "/api/answers/{{ answerId }}/correction"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
