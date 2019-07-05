@@ -1,20 +1,16 @@
 config:
-  phases:
-    - duration: 60
-      arrivalCount: 5
   payload:
-    path: "../payload/{{ $environment }}/users.csv"
+    path: "../payload/users-orga.csv"
     fields:
       - "username"
       - "password"
     order: random
     skipHeader: true
-
 scenarios:
   - name: 'Connexion Orga pour lecture des résultats participants'
     weight: 2
     flow:
-      - log: "Scenario — Connexion Orga pour lecture des résultats participants"
+      - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats participants"
       # Authenticate user
       - post:
           url: "/api/authentications"
@@ -66,7 +62,7 @@ scenarios:
               as: "campaigns"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignId"
@@ -84,7 +80,7 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       # Get campaign all participations
@@ -97,7 +93,7 @@ scenarios:
               as: "campaignParticipations"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignParticipation"
@@ -115,13 +111,13 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
   - name: 'Connexion Orga pour lecture des résultats collectifs'
     weight: 1
     flow:
-      - log: "Scenario — Connexion Orga pour lecture des résultats collectifs"
+      - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats collectifs"
       # Authenticate user
       - post:
           url: "/api/authentications"
@@ -173,7 +169,7 @@ scenarios:
               as: "campaigns"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignId"
@@ -191,7 +187,7 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       # Get campaign collective results
@@ -207,13 +203,13 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
   - name: 'Connexion Orga pour lecture des résultats participants puis des résultats collectifs'
     weight: 3
     flow:
-      - log: "Scenario — Connexion Orga pour lecture des résultats participants puis des résultats collectifs"
+      - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats participants puis des résultats collectifs"
       # Authenticate user
       - post:
           url: "/api/authentications"
@@ -265,7 +261,7 @@ scenarios:
               as: "campaigns"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignId"
@@ -283,7 +279,7 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       # Get campaign all participations
@@ -296,7 +292,7 @@ scenarios:
               as: "campaignParticipations"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignParticipation"
@@ -314,7 +310,7 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       # Get campaign collective results
@@ -330,13 +326,13 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
   - name: 'Connexion Orga pour lecture des résultats collectifs puis des résultats participants'
     weight: 3
     flow:
-      - log: "Scenario — Connexion Orga pour lecture des résultats collectifs puis des résultats participants"
+      - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats collectifs puis des résultats participants"
       # Authenticate user
       - post:
           url: "/api/authentications"
@@ -388,7 +384,7 @@ scenarios:
               as: "campaigns"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignId"
@@ -406,7 +402,7 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       # Get campaign collective results
@@ -422,7 +418,7 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       # Get campaign all participations
@@ -435,7 +431,7 @@ scenarios:
               as: "campaignParticipations"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}
 
       - function: "getRandomCampaignParticipation"
@@ -453,5 +449,5 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function: "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think: {{ thinkingTime }}

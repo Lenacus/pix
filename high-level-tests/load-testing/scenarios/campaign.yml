@@ -1,9 +1,6 @@
 config:
-  phases:
-    - duration: 10
-      arrivalCount: 1
   payload:
-    path: "../payload/{{ $environment }}/campaigns.csv"
+    path: "../payload/campaigns.csv"
     fields:
       - "campaignCode"
     order: random
@@ -11,6 +8,8 @@ config:
 scenarios:
   - name: 'Participation à une campagne'
     flow:
+      - log: "Scenario in env {{ $environment }} — Participation à une campagne"
+
       - function: "setupSignupFormDataForCampaign"
 
       ### ---------------------- ###
@@ -189,7 +188,7 @@ scenarios:
 
           # Thinking time
           - function: "getThinkingTime"
-          - log: "User is thinking during {{ thinkingTime }} seconds"
+
           - think: {{ thinkingTime }}
 
           # Submit "skip" answer

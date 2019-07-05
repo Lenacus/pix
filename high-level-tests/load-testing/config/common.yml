@@ -1,12 +1,50 @@
 config:
   processor: "../functions.js"
+  target: http://localhost:3000
+  phases:
+    - duration: 1
+      arrivalCount: 1
   environments:
-    localhost:
+    localhost-hard:
       target: http://localhost:3000
+      phases:
+      - duration: 60
+        arrivalRate: 5
+        name: "Slowly warming up the application"
+      - duration: 120
+        arrivalRate: 5
+        rampTo: 50
+        name: "Warm up the application"
+      - duration: 600
+        arrivalRate: 50
+        name: "Sustained max load"
     staging:
-      target: https://pix-api-integration-pr561.scalingo.io
+      target: https://integration.pix.fr
+      phases:
+        - duration: 10
+          arrivalCount: 1
+    benchmark-app:
+      target:  https://pix-api-benchmark.scalingo.io
+      phases:
+        - duration: 3600
+          arrivalCount: 1000
+    benchmark-app-hard:
+      target:  https://pix-api-benchmark.scalingo.io
+      phases:
+        - duration: 3600
+          arrivalCount: 5400
+    benchmark-orga:
+      target:  https://pix-api-benchmark.scalingo.io
+      phases:
+        - duration: 150
+          arrivalCount: 2300
+    benchmark-orga-hard:
+      target:  https://pix-api-benchmark.scalingo.io
+      phases:
+        - duration: 300
+          arrivalCount: 2300
   variables:
     # Thinking time is in seconds
     needRandomThinkingTime: true
-    minThinkingTime: 5
-    maxThinkingTime: 30
+    minThinkingTime: 30
+    maxThinkingTime: 90

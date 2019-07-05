@@ -1,12 +1,9 @@
-config:
-  phases:
-    - duration: 60
-      arrivalCount: 10
 scenarios:
   - name: 'Inscription et positionnement'
     flow:
       - function: "setupSignupFormData"
 
+      - log: "Scenario in env {{ $environment }} — Inscription et positionnement"
       ### ---------------------- ###
       ### From page /inscription ###
       ### ---------------------- ###
@@ -119,7 +116,7 @@ scenarios:
 
           # Thinking time
           - function: "getThinkingTime"
-          - log: "User is thinking during {{ thinkingTime }} seconds"
+
           - think: {{ thinkingTime }}
 
           # Submit "skip" answer

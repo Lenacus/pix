@@ -1,9 +1,6 @@
 config:
-  phases:
-    - duration: 60
-      arrivalCount: 5
   payload:
-    path: "../payload/{{ $environment }}/users.csv"
+    path: "../payload/users-orga.csv"
     fields:
       - "username"
       - "password"
@@ -12,7 +9,7 @@ config:
 scenarios:
   - name: 'Connexion Orga pour lecture des résultats collectifs'
     flow:
-      - log: "Scenario — Connexion Orga pour lecture des résultats collectifs"
+      - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats collectifs"
       # Authenticate user
       - post:
           url: "/api/authentications"
@@ -64,7 +61,7 @@ scenarios:
               as: "campaigns"
 
       - function : "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think : {{ thinkingTime }}
 
       - function: "getRandomCampaignId"
@@ -82,7 +79,7 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function : "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think : {{ thinkingTime }}
 
       # Get campaign collective results
@@ -98,5 +95,5 @@ scenarios:
             Authorization: "Bearer {{ accessToken }}"
 
       - function : "getThinkingTime"
-      - log: "User is thinking during {{ thinkingTime }} seconds"
+
       - think : {{ thinkingTime }}

@@ -1,12 +1,8 @@
-config:
-  phases:
-    - duration: 20
-      arrivalCount: 10
 scenarios:
   - name: 'Check API'
     flow:
+      - log: "Scenario in env {{ $environment }} — Check API"
       - get:
           url: "/api"
       - get:
           url: "/api/healthcheck/db"
-
