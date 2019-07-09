@@ -6,6 +6,8 @@ given('les données de test sont chargées', () => {
   cy.task('db:fixture', 'campaigns');
   cy.task('db:fixture', 'pix_roles');
   cy.task('db:fixture', 'users_pix_roles');
+  cy.task('db:fixture', 'certification-centers');
+  cy.task('db:fixture', 'sessions');
 });
 
 given('le compte de "Daenerys Targaryen" est créé', () => {

@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "certificationCenter": "Tour Alpha",
+    "address": "Rue Bikub",
+    "room": "Salle Feu",
+    "examiner": "Sophie",
+    "date": "2028-05-27",
+    "time": "15:00",
+    "accessCode": "GHI56",
+    "certificationCenterId": 1
+  }
+]
