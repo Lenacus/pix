@@ -7,5 +7,5 @@ Feature: Profilv2
     Given je vais sur Pix
     And je suis connecté à Pix
     When j'accède à mon profil v2
-    And je clique sur le rond de niveau de la compétence "Traiter des données"
-    Then je vois la page de détails de la compétence "Traiter des données"
+    And je clique sur le rond de niveau de la compétence "Géographie"
+    Then je vois la page de détails de la compétence "Géographie"
