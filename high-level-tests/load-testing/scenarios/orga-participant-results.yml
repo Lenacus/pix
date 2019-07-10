@@ -1,11 +1,3 @@
-config:
-  payload:
-    path: "../payload/users-orga.csv"
-    fields:
-      - "username"
-      - "password"
-    order: random
-    skipHeader: true
 scenarios:
   - name: 'Connexion Orga pour lecture des résultats participants'
     flow:

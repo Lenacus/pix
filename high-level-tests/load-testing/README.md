@@ -6,8 +6,8 @@ Faire tourner l'API en désactivant reCAPTCHA et MailJet. [PR #478](https://gith
 
 ```
 npm ci
-npm run start-connect -- -e "<env>"
-npm run report
+npm run start-<scenario> -- -e "<env>"
+npm run report-<scenario>
 ```
 
 ## Debugging HTTP Tests

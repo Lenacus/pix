@@ -18,23 +18,24 @@ config:
     localhost:
       target: http://localhost:3000
       phases:
-        - duration: 60
-          arrivalCount: 10
-          name: "Test"
-#        - duration: 3600
-#          arrivalCount: 1000
-#          name: "Benchmarking Mon-Pix"
-#        - duration: 1800
-#          arrivalCount: 150
-#          name: "Benchmarking Orga"
+      - duration: 60
+        arrivalRate: 5
+        name: "Slowly warming up the application"
+      - duration: 120
+        arrivalRate: 5
+        rampTo: 50
+        name: "Warm up the application"
+      - duration: 600
+        arrivalRate: 50
+        name: "Sustained max load"
     benchmark:
       target:  https://pix-api-benchmark.scalingo.io
       phases:
         - duration: 3600
-          arrivalCount: 1000
+          arrivalCount: 5400
           name: "Benchmarking Mon-Pix"
 #        - duration: 1800
-#          arrivalCount: 150
+#          arrivalCount: 300
 #          name: "Benchmarking Orga"
 
   variables:
