@@ -5,16 +5,16 @@ scenarios:
       - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats participants"
       # Authenticate user
       - post:
-          url: "/api/authentications"
-          json:
-            data:
-              attributes:
-                email: "{{ username }}"
-                password: "{{ password }}"
+          url: "/api/token"
+          form:
+            username: "{{ username }}"
+            password: "{{ password }}"
+            grant_type: "password"
+            scope: "pix-orga"
           capture:
-            - json: "$.data.attributes.token"
+            - json: "$.access_token"
               as: "accessToken"
-            - json: "$.data.id"
+            - json: "$.user_id"
               as: "userId"
 
       # Get user profile
@@ -112,16 +112,16 @@ scenarios:
       - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats collectifs"
       # Authenticate user
       - post:
-          url: "/api/authentications"
-          json:
-            data:
-              attributes:
-                email: "{{ username }}"
-                password: "{{ password }}"
+          url: "/api/token"
+          form:
+            username: "{{ username }}"
+            password: "{{ password }}"
+            grant_type: "password"
+            scope: "pix-orga"
           capture:
-            - json: "$.data.attributes.token"
+            - json: "$.access_token"
               as: "accessToken"
-            - json: "$.data.id"
+            - json: "$.user_id"
               as: "userId"
 
       # Get user profile
@@ -204,16 +204,16 @@ scenarios:
       - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats participants puis des résultats collectifs"
       # Authenticate user
       - post:
-          url: "/api/authentications"
-          json:
-            data:
-              attributes:
-                email: "{{ username }}"
-                password: "{{ password }}"
+          url: "/api/token"
+          form:
+            username: "{{ username }}"
+            password: "{{ password }}"
+            grant_type: "password"
+            scope: "pix-orga"
           capture:
-            - json: "$.data.attributes.token"
+            - json: "$.access_token"
               as: "accessToken"
-            - json: "$.data.id"
+            - json: "$.user_id"
               as: "userId"
 
       # Get user profile
@@ -327,16 +327,16 @@ scenarios:
       - log: "Scenario in env {{ $environment }} — Connexion Orga pour lecture des résultats collectifs puis des résultats participants"
       # Authenticate user
       - post:
-          url: "/api/authentications"
-          json:
-            data:
-              attributes:
-                email: "{{ username }}"
-                password: "{{ password }}"
+          url: "/api/token"
+          form:
+            username: "{{ username }}"
+            password: "{{ password }}"
+            grant_type: "password"
+            scope: "pix-orga"
           capture:
-            - json: "$.data.attributes.token"
+            - json: "$.access_token"
               as: "accessToken"
-            - json: "$.data.id"
+            - json: "$.user_id"
               as: "userId"
 
       # Get user profile
