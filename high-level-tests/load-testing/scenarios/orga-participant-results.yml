@@ -91,12 +91,14 @@ scenarios:
 
       # Get campaign participation
       - get:
+          ifTrue: "campaignParticipationId"
           url: "/api/campaign-participations/{{ campaignParticipationId }}?include=user"
           headers:
             Authorization: "Bearer {{ accessToken }}"
 
       # Get campaign participation result
       - get:
+          ifTrue: "campaignParticipationId"
           url: "/api/campaign-participations/{{ campaignParticipationId }}/campaign-participation-result"
           headers:
             Authorization: "Bearer {{ accessToken }}"
