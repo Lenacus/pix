@@ -66,6 +66,8 @@ high-level-tests/e2e/cypress/videos
 *.heapprofile
 
 # Artillery.io
+high-level-tests/load-testing/payload/benchmark/*.csv
+high-level-tests/load-testing/report/*
 high-level-tests/load-testing/report/*.json
 high-level-tests/load-testing/report/*.html
 
