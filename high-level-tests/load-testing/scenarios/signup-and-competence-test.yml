@@ -68,14 +68,11 @@ scenarios:
 
       # Create assessment for competence
       - post:
-          url: "/api/competence-evaluations"
+          url: "/api/competence-evaluations/start-or-resume"
           headers:
             Authorization: "Bearer {{ accessToken }}"
           json:
-            data:
-              attributes:
-                competence-id: "recsvLz0W2ShyfD63"
-              type: "competence-evaluations"
+            competenceId: "recsvLz0W2ShyfD63"
           capture:
             json: "$.data.relationships.assessment.data.id"
             as: "assessmentId"
