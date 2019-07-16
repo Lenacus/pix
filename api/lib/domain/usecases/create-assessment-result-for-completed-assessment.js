@@ -13,6 +13,7 @@ const NOT_VALIDATED_LEVEL = -1;
 module.exports = function createAssessmentResultForCompletedAssessment({
   // Parameters
   assessmentId,
+  assessmentResultId,
   forceRecomputeResult = false,
   // Repositories
   answerRepository,
@@ -50,6 +51,8 @@ module.exports = function createAssessmentResultForCompletedAssessment({
     .then((assessmentScore) => _saveAssessmentResult({
       assessment,
       assessmentScore,
+      updateCertificationCompletionDate,
+      assessmentResultId,
       assessmentRepository,
       assessmentResultRepository,
       certificationCourseRepository,
@@ -65,9 +68,11 @@ module.exports = function createAssessmentResultForCompletedAssessment({
     }));
 };
 
-function _saveAssessmentResult({
+async function _saveAssessmentResult({
   // Parameters
   assessment,
+  updateCertificationCompletionDate,
+  assessmentResultId,
   assessmentScore,
   // Repositories
   assessmentRepository,
@@ -77,7 +82,16 @@ function _saveAssessmentResult({
   // Services
 }) {
   const status = _getAssessmentStatus(assessment, assessmentScore);
-  const assessmentResult = AssessmentResult.BuildStandardAssessmentResult(assessmentScore.level, assessmentScore.nbPix, status, assessment.id);
+
+  let assessmentResult;
+  if (assessmentResultId) {
+    assessmentResult = await assessmentResultRepository.get(assessmentResultId);
+    assessmentResult.level = assessmentScore.level;
+    assessmentResult.pixScore = assessmentScore.nbPix;
+    assessmentResult.status = status;
+  } else {
+    assessmentResult = AssessmentResult.BuildStandardAssessmentResult(assessmentScore.level, assessmentScore.nbPix, status, assessment.id);
+  }
 
   return Promise.all([
     assessmentResultRepository.save(assessmentResult),
