@@ -15,6 +15,7 @@ module.exports = function createAssessmentResultForCompletedAssessment({
   assessmentId,
   assessmentResultId,
   forceRecomputeResult = false,
+  updateCertificationCompletionDate = true,
   // Repositories
   answerRepository,
   assessmentRepository,
@@ -61,6 +62,7 @@ module.exports = function createAssessmentResultForCompletedAssessment({
     .catch((error) => _saveResultAfterComputingError({
       assessment,
       assessmentId,
+      updateCertificationCompletionDate,
       assessmentRepository,
       assessmentResultRepository,
       certificationCourseRepository,
@@ -139,8 +141,8 @@ function _ceilCompetenceMarkLevelForCertification(mark, assessment) {
   return mark;
 }
 
-function _updateCompletedDateOfCertification(assessment, certificationCourseRepository) {
-  if (assessment.isCertification()) {
+function _updateCompletedDateOfCertification(assessment, certificationCourseRepository, updateCertificationCompletionDate) {
+  if (assessment.isCertification() && updateCertificationCompletionDate) {
     return certificationCourseRepository.changeCompletionDate(
       assessment.courseId,
       new Date(),
@@ -153,6 +155,7 @@ function _updateCompletedDateOfCertification(assessment, certificationCourseRepo
 function _saveResultAfterComputingError({
   assessment,
   assessmentId,
+  updateCertificationCompletionDate,
   assessmentRepository,
   assessmentResultRepository,
   certificationCourseRepository,
@@ -168,5 +171,5 @@ function _saveResultAfterComputingError({
     assessmentResultRepository.save(assessmentResult),
     assessmentRepository.updateStateById({ id: assessmentId, state: Assessment.states.COMPLETED }),
   ])
-    .then(() => _updateCompletedDateOfCertification(assessment, certificationCourseRepository));
+    .then(() => _updateCompletedDateOfCertification(assessment, certificationCourseRepository, updateCertificationCompletionDate));
 }

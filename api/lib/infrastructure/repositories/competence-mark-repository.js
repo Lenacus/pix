@@ -12,6 +12,12 @@ module.exports = {
       .then((savedCompetenceMark) => savedCompetenceMark.toDomainEntity());
   },
 
+  find() {
+    return BookshelfCompetenceMark
+      .fetchAll()
+      .then((competenceMarks) => competenceMarks.models.map(_toDomain));
+  },
+
   findByAssessmentResultId(assessmentResultId) {
     return BookshelfCompetenceMark
       .where({ assessmentResultId })
