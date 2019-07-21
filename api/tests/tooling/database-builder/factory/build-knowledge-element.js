@@ -1,7 +1,7 @@
 const faker = require('faker');
 const buildAnswer = require('./build-answer');
-const buildUser = require('./build-user');
 const buildAssessment = require('./build-assessment');
+const buildUser = require('./build-user');
 const databaseBuffer = require('../database-buffer');
 const KnowledgeElement = require('../../../../lib/domain/models/KnowledgeElement');
 const _ = require('lodash');
@@ -13,15 +13,15 @@ module.exports = function buildKnowledgeElement({
   createdAt = faker.date.recent(),
   earnedPix = 2,
   skillId = `rec${faker.random.uuid()}`,
-  assessmentId,
-  answerId,
-  userId,
+  assessmentId = undefined,
+  answerId = undefined,
+  userId = undefined,
   competenceId = `rec${faker.random.uuid()}`,
 } = {}) {
 
-  assessmentId = _.isNil(assessmentId) ? buildAssessment().id : assessmentId;
-  answerId = _.isNil(answerId) ? buildAnswer().id : answerId;
-  userId = _.isNil(userId) ? buildUser().id : userId;
+  userId = _.isUndefined(userId) ? buildUser().id : userId;
+  assessmentId = _.isUndefined(assessmentId) ? buildAssessment({ userId }).id : assessmentId;
+  answerId = _.isUndefined(answerId) ? buildAnswer({ assessmentId }).id : answerId;
 
   const values = {
     id,

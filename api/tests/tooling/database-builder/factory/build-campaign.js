@@ -13,14 +13,14 @@ module.exports = function buildCampaign({
   idPixLabel = faker.random.word(),
   customLandingPageText = faker.lorem.text(),
   createdAt = faker.date.recent(),
-  organizationId,
-  creatorId,
-  targetProfileId,
+  organizationId = undefined,
+  creatorId = undefined,
+  targetProfileId = undefined,
 } = {}) {
 
-  organizationId = _.isNil(organizationId) ? buildOrganization().id : organizationId;
-  creatorId = _.isNil(creatorId) ? buildUser().id : creatorId;
-  targetProfileId = _.isNil(targetProfileId) ? buildTargetProfile({ organizationId }).id : targetProfileId;
+  organizationId = _.isUndefined(organizationId) ? buildOrganization().id : organizationId;
+  creatorId = _.isUndefined(creatorId) ? buildUser().id : creatorId;
+  targetProfileId = _.isUndefined(targetProfileId) ? buildTargetProfile({ organizationId }).id : targetProfileId;
 
   const values = {
     id,

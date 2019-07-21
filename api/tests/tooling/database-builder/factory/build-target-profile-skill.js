@@ -5,11 +5,11 @@ const _ = require('lodash');
 
 module.exports = function buildTargetProfileSkill({
   id,
-  targetProfileId,
+  targetProfileId = undefined,
   skillId = `rec${faker.random.uuid()}`,
 } = {}) {
 
-  targetProfileId = _.isNil(targetProfileId) ? buildTargetProfile().id : targetProfileId;
+  targetProfileId = _.isUndefined(targetProfileId) ? buildTargetProfile().id : targetProfileId;
 
   const values = {
     id,

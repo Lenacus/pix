@@ -1,23 +1,32 @@
 const faker = require('faker');
 const databaseBuffer = require('../database-buffer');
-const Membership = require('../../../../lib/domain/models/Membership');
 const encrypt = require('../../../../lib/domain/services/encryption-service');
 const buildPixRole = require('./build-pix-role');
 const buildUserPixRole = require('./build-user-pix-role');
-const buildOrganization = require('./build-organization');
-const buildMembership = require('./build-membership');
 const _ = require('lodash');
 
 const buildUser = function buildUser({
   id,
   firstName = faker.name.firstName(),
   lastName = faker.name.lastName(),
-  email = faker.internet.exampleEmail().toLowerCase(),
-  password = encrypt.hashPasswordSync(faker.internet.password()),
+  email = undefined ,
+  password = undefined,
   cgu = true,
   samlId,
 } = {}) {
 
+  if (_.isUndefined(password)) {
+    password = encrypt.hashPasswordSync(faker.internet.password());
+  }
+  else {
+    password = encrypt.hashPasswordSync(password);
+  }
+  if (_.isUndefined(email)) {
+    email = faker.internet.exampleEmail().toLowerCase();
+  }
+  else {
+    email = email.toLowerCase();
+  }
   const values = {
     id, firstName, lastName, email, password, cgu, samlId,
   };
@@ -71,37 +80,6 @@ buildUser.withPixRolePixMaster = function buildUserWithPixRolePixMaster({
   });
 
   buildUserPixRole({ userId: user.id, pixRoleId: pixRolePixMaster.id });
-
-  return user;
-};
-
-buildUser.withMembership = function buildUserWithMemberships({
-  id,
-  firstName = faker.name.firstName(),
-  lastName = faker.name.lastName(),
-  email = faker.internet.email(),
-  password = 'encrypt.hashPasswordSync(faker.internet.password())',
-  cgu = true,
-  organizationRole = Membership.roles.OWNER,
-  organizationId = null,
-} = {}) {
-
-  const values = {
-    id, firstName, lastName, email, password, cgu,
-  };
-
-  organizationId = _.isNil(organizationId) ? buildOrganization({ name: faker.companyName() }).id : organizationId;
-
-  const user = databaseBuffer.pushInsertable({
-    tableName: 'users',
-    values,
-  });
-
-  buildMembership({
-    userId: user.id,
-    organizationId,
-    organizationRole,
-  });
 
   return user;
 };

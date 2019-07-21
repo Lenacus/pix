@@ -7,16 +7,18 @@ module.exports = function buildTargetProfile({
   id,
   name = faker.name.jobTitle(),
   isPublic = faker.random.boolean(),
-  organizationId,
+  organizationId = undefined,
+  createdAt = faker.date.recent(),
 } = {}) {
 
-  organizationId = _.isNil(organizationId) ? buildOrganization().id : organizationId;
+  organizationId = _.isUndefined(organizationId) ? buildOrganization().id : organizationId;
 
   const values = {
     id,
     name,
     isPublic,
     organizationId,
+    createdAt,
   };
   return databaseBuffer.pushInsertable({
     tableName: 'target-profiles',

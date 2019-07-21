@@ -7,21 +7,28 @@ const _ = require('lodash');
 
 module.exports = function buildCampaignParticipation({
   id,
-  assessmentId,
-  campaignId,
+  assessmentId = undefined,
+  campaignId = undefined,
   isShared = faker.random.boolean(),
   createdAt = faker.date.past(),
-  sharedAt = new Date(),
-  userId,
-  participantExternalId = faker.random.word()
+  sharedAt = faker.date.past(),
+  userId = undefined,
+  participantExternalId = faker.random.word(),
 } = {}) {
 
-  assessmentId = _.isNil(assessmentId) ? buildAssessment().id : assessmentId;
-  campaignId = _.isNil(campaignId) ? buildCampaign().id : campaignId;
-  userId = _.isNil(userId) ? buildUser().id : userId;
+  userId = _.isUndefined(userId) ? buildUser().id : userId;
+  assessmentId = _.isUndefined(assessmentId) ? buildAssessment({ userId }).id : assessmentId;
+  campaignId = _.isUndefined(campaignId) ? buildCampaign().id : campaignId;
 
   const values = {
-    id, assessmentId, campaignId, userId, isShared, createdAt, sharedAt, participantExternalId
+    id,
+    assessmentId,
+    campaignId,
+    userId,
+    isShared,
+    createdAt,
+    sharedAt,
+    participantExternalId,
   };
   return databaseBuffer.pushInsertable({
     tableName: 'campaign-participations',
