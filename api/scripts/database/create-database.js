@@ -1,7 +1,8 @@
 require('dotenv').config();
 const PgClient = require('../PgClient');
 
-const dbUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+const dbUrl = process.env.NODE_ENV === 'test' ? process.env.TEST_DATABASE_URL : process.env.DATABASE_URL;
+
 const url = new URL(dbUrl);
 
 const DB_TO_CREATE_NAME = url.pathname.slice(1);
@@ -15,4 +16,13 @@ client.query_and_log(`CREATE DATABASE ${DB_TO_CREATE_NAME};`)
     console.log('Database created');
     client.end();
     process.exit(0);
+  }).catch((error) => {
+    if (error.code === '42P04') {
+      console.log(`Database ${DB_TO_CREATE_NAME} already created`);
+      client.end();
+      process.exit(0);
+    }
+    else {
+      throw error;
+    }
   });
