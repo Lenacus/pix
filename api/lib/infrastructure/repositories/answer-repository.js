@@ -50,6 +50,7 @@ module.exports = {
       });
   },
 
+  // TODO shouldnt this be returning several answers (aka why find and not get?)
   findByChallengeAndAssessment({ challengeId, assessmentId }) {
     return BookshelfAnswer
       .where({ challengeId, assessmentId })

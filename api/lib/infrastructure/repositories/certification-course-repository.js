@@ -14,6 +14,7 @@ function _toDomain(model) {
       assessment: model.related('assessment').toJSON(),
       challenges: model.related('challenges').toJSON(),
       createdAt: model.get('createdAt'),
+      updatedAt: model.get('updatedAt'),
       completedAt: model.get('completedAt'),
       firstName: model.get('firstName'),
       lastName: model.get('lastName'),
@@ -40,7 +41,8 @@ module.exports = {
 
   changeCompletionDate(certificationCourseId, completedAt = null) {
     const certificationCourseBookshelf = new CertificationCourseBookshelf({ id: certificationCourseId, completedAt });
-    return certificationCourseBookshelf.save();
+    return certificationCourseBookshelf.save()
+      .then(_toDomain);
   },
 
   get(id) {
