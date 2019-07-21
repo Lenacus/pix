@@ -10,6 +10,18 @@ require('./knowledge-element');
 require('./membership');
 require('./certification-center-membership');
 
+// id                               -   PK autoinc Integer
+// firstName                        -   String
+// lastName                         -   String
+// email                            -   String  NULLABLE
+// password                         -   String
+// createdAt                        -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// updatedAt                        -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// cgu                              -   Boolean   NULLABLE
+// pixOrgaTermsOfServiceAccepted    -   Boolean   NULLABLE   DEFAULT FALSE
+// samlId                           -   Varchar   NULLABLE
+// pixCertifTermsOfServiceAccepted  -   Boolean   NULLABLE   DEFAULT FALSE
+
 module.exports = Bookshelf.model('User', {
   tableName: 'users',
   hasTimestamps: ['createdAt', 'updatedAt'],

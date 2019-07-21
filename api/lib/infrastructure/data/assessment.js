@@ -1,5 +1,14 @@
 const Bookshelf = require('../bookshelf');
 
+// id                         -   PK autoinc Integer
+// courseId                   -   Varchar NULLABLE
+// createdAt                  -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// updatedAt                  -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// userId                     -   FK ON users.id  NULLABLE
+// type                       -   Varchar   NULLABLE
+// state                      -   Text   NULLABLE
+// competenceId               -   Varchar   NULLABLE
+
 require('./answer');
 require('./user');
 require('./assessment-result');

@@ -3,6 +3,14 @@ const CompetenceMark = require('../../domain/models/CompetenceMark');
 
 require('./assessment-result');
 
+// id                     -   PK autoinc Integer
+// level                  -   INTEGER NULLABLE
+// score                  -   INTEGER NULLABLE
+// area_code              -   TEXT
+// competence_code        -   TEXT
+// createdAt              -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// assessmentResultId     -   FK ON assessment-results.id  NULLABLE
+
 module.exports = Bookshelf.model('CompetenceMark', {
 
   tableName: 'competence-marks',

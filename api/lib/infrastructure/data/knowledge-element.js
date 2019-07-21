@@ -4,6 +4,17 @@ const Bookshelf = require('../bookshelf');
 require('./assessment');
 require('./user');
 
+// id                     -   PK autoinc Integer
+// source                 -   Varchar  NULLABLE
+// status                 -   Varchar  NULLABLE
+// createdAt              -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// answerId               -   FK ON answers.id  NULLABLE
+// assessmentId           -   FK ON assessments.id  NULLABLE
+// skillId                -   Varchar NULLABLE
+// earnedPix              -   Real   DEFAULT '0'::real
+// userId                 -   FK ON users.id  NULLABLE
+// competenceId           -   Varchar   NULLABLE
+
 module.exports = Bookshelf.model('KnowledgeElement', {
 
   tableName: 'knowledge-elements',

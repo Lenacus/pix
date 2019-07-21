@@ -4,6 +4,15 @@ require('./user');
 require('./membership');
 require('./target-profile-share');
 
+// id          -   PK autoinc Integer
+// type        -   TEXT
+// name        -   Varchar
+// createdAt   -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// updatedAt   -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// userId      -   FK ON users.id  NULLABLE
+// code        -   Varchar DEFAULT ''::character varying
+// logoUrl     -   TEXT
+
 module.exports = Bookshelf.model('Organization', {
 
   tableName: 'organizations',

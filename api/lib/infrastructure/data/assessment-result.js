@@ -1,5 +1,17 @@
 const Bookshelf = require('../bookshelf');
 
+// id                         -   PK autoinc Integer
+// createdAt                  -   Timestamptz   DEFAULT CURRENT_TIMESTAMP
+// level                      -   Integer NULLABLE
+// pixScore                   -   Integer NULLABLE
+// emitter                    -   Text
+// commentForJury             -   Text   NULLABLE
+// commentForOrganization     -   Text   NULLABLE
+// commentForCandidate        -   Text   NULLABLE
+// status                     -   Text
+// juryId                     -   FK ON users.id  NULLABLE
+// assessmentId               -   FK ON assessments.id  NULLABLE
+
 require('./assessment');
 require('./competence-mark');
 
