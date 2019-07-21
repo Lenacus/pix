@@ -146,12 +146,13 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
       const assessments = await assessmentRepository.findLastAssessmentsForEachCoursesByUser(johnUserId);
 
       // then
-      expect(assessments).to.have.lengthOf(2);
+      const sortedAssessments = _.sortBy(assessments, 'courseId');
+      expect(sortedAssessments).to.have.lengthOf(2);
 
-      const firstId = assessments[0].id;
+      const firstId = sortedAssessments[0].id;
       expect(firstId).to.equal(firstJohnAssessmentIdToRemember);
 
-      const secondId = assessments[1].id;
+      const secondId = sortedAssessments[1].id;
       expect(secondId).to.equal(secondJohnAssessmentIdToRemember);
     });
 
@@ -236,7 +237,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
       await databaseBuilder.clean();
     });
 
-    it('should return the list of assessments (which are not Certifications) from JOHN', async () => {
+    it('should return the list of completed assessments (which are not Certifications) from JOHN', async () => {
       // when
       const assessments = await assessmentRepository.findCompletedAssessmentsByUserId(johnUserId);
 
@@ -246,8 +247,8 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
       expect(assessments[0]).to.be.an.instanceOf(Assessment);
       expect(assessments[1]).to.be.an.instanceOf(Assessment);
 
-      expect(assessments[0].id).to.equal(firstJohnCompletedAssessmentIdToRemember);
-      expect(assessments[1].id).to.equal(secondJohnCompletedAssessmentIdToRemember);
+      expect(assessments[0].id).to.be.oneOf([ firstJohnCompletedAssessmentIdToRemember, secondJohnCompletedAssessmentIdToRemember ]);
+      expect(assessments[1].id).to.be.oneOf([ firstJohnCompletedAssessmentIdToRemember, secondJohnCompletedAssessmentIdToRemember ]);
     });
 
     it('should not return preview assessments from LAYLA', async () => {
@@ -278,7 +279,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
       let assessmentId;
 
       before(async () => {
-        userId = databaseBuilder.factory.buildUser().id;
+        userId = databaseBuilder.factory.buildUser({}).id;
         assessmentId = databaseBuilder.factory.buildAssessment({
           userId,
           courseId: 'courseId',
@@ -298,7 +299,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
         // then
         expect(assessment).to.be.an.instanceOf(Assessment);
         expect(assessment.id).to.equal(assessmentId);
-        expect(assessment.userId).to.equal(userId);
+        expect(parseInt(assessment.userId)).to.equal(userId);
       });
     });
 
@@ -306,20 +307,17 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
       const userId = null;
       let assessmentId;
 
-      before(async () => {
-        const assessment = {
-          userId,
-          courseId: 'courseId',
-        };
-
-        const insertedAssessment = await knex('assessments')
-          .insert(assessment)
-          .returning('id');
-        assessmentId = insertedAssessment.shift();
+      beforeEach(async () => {
+        assessmentId = databaseBuilder.factory.buildAssessment(
+          {
+            userId,
+            courseId: 'courseId',
+          }).id;
+        await databaseBuilder.commit();
       });
 
-      after(async () => {
-        await knex('assessments').where('id', assessmentId).delete();
+      afterEach(async () => {
+        await databaseBuilder.clean();
       });
 
       it('should fetch relative assessment', async () => {
@@ -363,7 +361,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
     // TODO: test with malformed data, e.g.:
     // - completed assessments without an AssessmentResult
 
-    before(async () => {
+    beforeEach(async () => {
       johnUserId = databaseBuilder.factory.buildUser().id;
       laylaUserId = databaseBuilder.factory.buildUser().id;
 
@@ -461,7 +459,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
       await databaseBuilder.commit();
     });
 
-    after(async () => {
+    afterEach(async () => {
       await databaseBuilder.clean();
     });
 
@@ -500,7 +498,9 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
       const assessments = await assessmentRepository.findLastCompletedAssessmentsForEachCoursesByUser(johnUserId, limitDate);
 
       // then
-      expect(assessments).to.deep.equal(expectedAssessments);
+      const assessmentsWithoutUserId = _.map(assessments, (assessment) => _.omit(assessment, ['userId']));
+      const expectedAssessmentsWithoutUserId = _.map(expectedAssessments, (assessment) => _.omit(assessment, ['userId']));
+      expect(assessmentsWithoutUserId).to.deep.equal(expectedAssessmentsWithoutUserId);
     });
   });
 
@@ -524,7 +524,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
     });
 
     after(async () => {
-      await knex('assessments').where('id', assessmentReturned.id).delete();
+      await knex('assessments').delete();
       await databaseBuilder.clean();
     });
 
@@ -534,7 +534,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
 
       // then
       const assessmentsInDb = await knex('assessments').where('id', assessmentReturned.id).first('id', 'userId');
-      expect(assessmentsInDb.userId).to.equal(userId);
+      expect(parseInt(assessmentsInDb.userId)).to.equal(userId);
     });
   });
 
@@ -555,7 +555,6 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
         pixScore: 0,
         status: 'validated',
         emitter: 'PIX-ALGO',
-        juryId: 1,
         commentForJury: 'Computed',
         commentForCandidate: 'Votre certification a été validé par Pix',
         commentForOrganization: 'Sa certification a été validé par Pix',

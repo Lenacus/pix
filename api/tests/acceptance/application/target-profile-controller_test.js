@@ -1,4 +1,4 @@
-const { expect, generateValidRequestAuhorizationHeader, databaseBuilder } = require('../../test-helper');
+const { expect, generateValidRequestAuhorizationHeader, nock, databaseBuilder } = require('../../test-helper');
 const createServer = require('../../../server');
 
 describe('Acceptance | Controller | target-profile-controller', () => {
@@ -13,43 +13,50 @@ describe('Acceptance | Controller | target-profile-controller', () => {
 
     context('when user is authenticated', () => {
 
-      let connectedUserId;
-      let linkedOrganizationId;
+      let user;
+      let linkedOrganization;
 
       beforeEach(async () => {
-        connectedUserId = databaseBuilder.factory.buildUser().id;
-        linkedOrganizationId = databaseBuilder.factory.buildOrganization().id;
-
+        nock.cleanAll();
+        nock('https://api.airtable.com')
+          .get('/v0/test-base/Acquis')
+          .query(true)
+          .reply(200, {});
+        user = databaseBuilder.factory.buildUser({});
+        linkedOrganization = databaseBuilder.factory.buildOrganization({});
         databaseBuilder.factory.buildMembership({
-          userId: connectedUserId,
-          organizationId: linkedOrganizationId,
+          userId: user.id,
+          organizationId: linkedOrganization.id,
         });
 
         await databaseBuilder.commit();
       });
 
       afterEach(async () => {
+        nock.cleanAll();
         await databaseBuilder.clean();
       });
 
-      it('should return 200', async () => {
+      it('should return 200', () => {
         const options = {
           method: 'GET',
-          url: `/api/organizations/${linkedOrganizationId}/target-profiles`,
-          headers: { authorization: generateValidRequestAuhorizationHeader(connectedUserId) },
+          url: `/api/organizations/${linkedOrganization.id}/target-profiles`,
+          headers: { authorization: generateValidRequestAuhorizationHeader(user.id) },
         };
 
         // when
-        const response = await server.inject(options);
+        const promise = server.inject(options);
 
         // then
-        expect(response.statusCode).to.equal(200);
+        return promise.then((response) => {
+          expect(response.statusCode).to.equal(200);
+        });
       });
     });
 
     context('when user is not authenticated', () => {
 
-      it('should return 401', async () => {
+      it('should return 401', () => {
         const options = {
           method: 'GET',
           url: '/api/organizations/1/target-profiles',
@@ -57,10 +64,12 @@ describe('Acceptance | Controller | target-profile-controller', () => {
         };
 
         // when
-        const response = await server.inject(options);
+        const promise = server.inject(options);
 
         // then
-        expect(response.statusCode).to.equal(401);
+        return promise.then((response) => {
+          expect(response.statusCode).to.equal(401);
+        });
       });
     });
   });

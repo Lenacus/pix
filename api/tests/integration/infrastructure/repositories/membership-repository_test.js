@@ -11,8 +11,9 @@ describe('Integration | Infrastructure | Repository | membership-repository', ()
     return databaseBuilder.clean();
   });
 
-  afterEach(() => {
-    return databaseBuilder.clean();
+  afterEach(async () => {
+    await knex('memberships').delete();
+    await databaseBuilder.clean();
   });
 
   describe('#create', () => {
@@ -21,10 +22,10 @@ describe('Integration | Infrastructure | Repository | membership-repository', ()
     let organizationId;
     const organizationRole = Membership.roles.OWNER;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       userId = databaseBuilder.factory.buildUser().id;
       organizationId = databaseBuilder.factory.buildOrganization().id;
-      return databaseBuilder.commit();
+      await databaseBuilder.commit();
     });
 
     it('should add a new membership in database', async () => {
@@ -36,7 +37,7 @@ describe('Integration | Infrastructure | Repository | membership-repository', ()
 
       // then
       const afterNbMemberships = await knex('memberships').count('id as count');
-      expect(afterNbMemberships[0].count).to.equal(beforeNbMemberships[0].count + 1);
+      expect(parseInt(afterNbMemberships[0].count)).to.equal(parseInt(beforeNbMemberships[0].count + 1));
     });
 
     it('should return a Membership domain model object', async () => {

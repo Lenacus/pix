@@ -6,9 +6,9 @@ const moment = require('moment');
 
 describe('Integration | Repository | KnowledgeElementRepository', () => {
 
-  afterEach(() => {
-    return knex('knowledge-elements').delete()
-      .then(() => (databaseBuilder.clean()));
+  afterEach(async () => {
+    await knex('knowledge-elements').delete();
+    await databaseBuilder.clean();
   });
 
   describe('#save', () => {
@@ -18,12 +18,14 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
 
     beforeEach(async () => {
       // given
-      const assessmentId = databaseBuilder.factory.buildAssessment({ userId: 3 }).id;
+      const userId = databaseBuilder.factory.buildUser({}).id;
+      const assessmentId = databaseBuilder.factory.buildAssessment({ userId }).id;
       const answerId = databaseBuilder.factory.buildAnswer({ assessmentId }).id;
 
       await databaseBuilder.commit();
 
       knowledgeElement = domainBuilder.buildKnowledgeElement({
+        userId,
         assessmentId,
         answerId,
         competenceId: 'recABC'
@@ -116,7 +118,6 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
     const yesterday = moment(today).subtract(1, 'days').toDate();
     const tomorrow = moment(today).add(1, 'days').toDate();
     const dayBeforeYesterday = moment(today).subtract(2, 'days').toDate();
-
     let knowledgeElementsWanted, knowledgeElementsWantedWithLimitDate;
     let userId;
 
@@ -206,26 +207,31 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
 
   describe('#findUniqByUserIdAndCompetenceId', () => {
 
-    let userId;
-    let competenceId;
+    let userId, expectedKnowledgeElementId;
+    const competenceId = 'recABC';
 
     beforeEach(async () => {
       // given
       userId = databaseBuilder.factory.buildUser().id;
-      const otherUserId = 'fakeId';
-      competenceId = 2;
+      const otherUserId = databaseBuilder.factory.buildUser().id;
 
       const today = moment.utc().toDate();
       const yesterday = moment.utc().subtract(1, 'day').toDate();
 
       _.each([
-        { id: 1, competenceId: 1, userId, skillId: 'web1', createdAt: today },
-        { id: 2, competenceId, userId, skillId: 'url1', createdAt: today },
-        { id: 3, competenceId, userId, skillId: 'url1', createdAt: yesterday },
-        { id: 4, competenceId, userId: otherUserId, skillId: 'url2', createdAt: today },
+        { competenceId: 'recDFE', userId, skillId: 'web1', createdAt: today },
+        { competenceId, userId, skillId: 'url1', createdAt: yesterday },
+        { competenceId, userId: otherUserId, skillId: 'url2', createdAt: today },
       ], (ke) => {
         databaseBuilder.factory.buildKnowledgeElement(ke);
       });
+      expectedKnowledgeElementId = databaseBuilder.factory.buildKnowledgeElement(
+        {
+          competenceId,
+          userId,
+          skillId: 'url1',
+          createdAt: today
+        }).id;
 
       await databaseBuilder.commit();
     });
@@ -241,7 +247,7 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
       // then
       expect(actualKnowledgeElements).to.have.length(1);
       expect(actualKnowledgeElements[0]).to.be.instanceOf(KnowledgeElement);
-      expect(actualKnowledgeElements[0].id).to.equal(2);
+      expect(actualKnowledgeElements[0].id).to.equal(expectedKnowledgeElementId);
     });
 
   });
@@ -283,47 +289,4 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
 
   });
 
-  describe('findUniqByUserIdAndCompetenceId', () => {
-    let wantedKnowledgeElements;
-    let userId;
-    let otherUserId;
-    let competenceId;
-    let otherCompetenceId;
-
-    beforeEach(async () => {
-      userId = 1;
-      otherUserId = 2;
-      competenceId = '3';
-      otherCompetenceId = '4';
-
-      wantedKnowledgeElements = _.map([
-        { id: 1, status: 'validated', userId, competenceId },
-        { id: 2, status: 'invalidated', userId, competenceId },
-      ], (ke) => databaseBuilder.factory.buildKnowledgeElement(ke));
-      
-      _.each([
-        { id: 3, status: 'invalidated', userId, competenceId: otherCompetenceId },
-        { id: 4, status: 'validated', userId: otherUserId, competenceId },
-        { id: 5, status: 'validated', userId: otherUserId, competenceId: otherCompetenceId },
-        { id: 6, status: 'validated', userId, competenceId: null },
-      ], (ke) => {
-        databaseBuilder.factory.buildKnowledgeElement(ke);
-      });
-
-      await databaseBuilder.commit();
-    });
-
-    afterEach(async () => {
-      await databaseBuilder.clean();
-    });
-
-    it('should find only the knowledge elements matching both userId and competenceId', async () => {
-      // when
-      const actualKnowledgeElements = await KnowledgeElementRepository.findUniqByUserIdAndCompetenceId({ userId, competenceId });
-
-      expect(actualKnowledgeElements).to.have.deep.members(wantedKnowledgeElements);
-
-    });
-
-  });
 });

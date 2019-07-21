@@ -1,5 +1,6 @@
 const { databaseBuilder, expect, knex, domainBuilder } = require('../../../test-helper');
-
+const _ = require('lodash');
+const moment = require('moment');
 const { NotFoundError } = require('../../../../lib/domain/errors');
 const Session = require('../../../../lib/domain/models/Session');
 
@@ -17,12 +18,13 @@ describe('Integration | Repository | Session', function() {
   });
 
   describe('#save', () => {
-    let session;
+    let session, certificationCenter;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+      certificationCenter = databaseBuilder.factory.buildCertificationCenter({});
       session = new Session({
-        certificationCenter: 'Université de dressage de loutres',
-        certificationCenterId: 42,
+        certificationCenter: certificationCenter.name,
+        certificationCenterId: certificationCenter.id,
         address: 'Nice',
         room: '28D',
         examiner: 'Michel Essentiel',
@@ -30,6 +32,13 @@ describe('Integration | Repository | Session', function() {
         time: '14:30',
         description: 'Première certification EVER !!!'
       });
+
+      await databaseBuilder.commit();
+    });
+
+    afterEach(async() => {
+      await knex('sessions').delete();
+      await databaseBuilder.clean();
     });
 
     it('should persist the session in db', () => {
@@ -52,7 +61,7 @@ describe('Integration | Repository | Session', function() {
         expect(savedSession).to.be.an.instanceOf(Session);
 
         expect(savedSession).to.have.property('id').and.not.null;
-        expect(savedSession.certificationCenter).to.equal('Université de dressage de loutres');
+        expect(savedSession.certificationCenter).to.equal(certificationCenter.name);
       });
     });
     afterEach(async () => {
@@ -152,11 +161,15 @@ describe('Integration | Repository | Session', function() {
   });
 
   describe('#get', () => {
+    let certificationCenter;
+    let sessionId;
 
-    beforeEach(() => {
-      databaseBuilder.factory.buildSession({
-        id: 1,
-        certificationCenter: 'Tour Gamma',
+    beforeEach(async () => {
+      // given
+      certificationCenter = databaseBuilder.factory.buildCertificationCenter({});
+      sessionId = databaseBuilder.factory.buildSession({
+        certificationCenter: certificationCenter.name,
+        certificationCenterId: certificationCenter.id,
         address: 'rue de Bercy',
         room: 'Salle A',
         examiner: 'Monsieur Examinateur',
@@ -164,42 +177,35 @@ describe('Integration | Repository | Session', function() {
         time: '12:00',
         description: 'CertificationPix pour les jeunes',
         accessCode: 'NJR10'
+      }).id;
+      const anotherSessionId = databaseBuilder.factory.buildSession({}).id;
+      _.each([
+        { sessionId },
+        { sessionId },
+        { sessionId: anotherSessionId },
+      ], (certificationCourse) => {
+        databaseBuilder.factory.buildCertificationCourse(certificationCourse);
       });
+      await databaseBuilder.commit();
+    });
 
-      databaseBuilder.factory.buildCertificationCourse({
-        id: 1,
-        userId: 1,
-        sessionId: 1
-      });
-      databaseBuilder.factory.buildCertificationCourse({
-        id: 2,
-        userId: 2,
-        sessionId: 1
-      });
-      databaseBuilder.factory.buildCertificationCourse({
-        id: 3,
-        userId: 3,
-        sessionId: 2
-      });
-      return databaseBuilder.commit();
+    afterEach(async () => {
+      await databaseBuilder.clean();
     });
 
     it('should return session informations in a session Object', function() {
-      // given
-
       // when
-      const promise = sessionRepository.get(1);
+      const promise = sessionRepository.get(sessionId);
 
       // then
       return promise.then((session) => {
         expect(session).to.be.instanceOf(Session);
-        expect(session.id).to.be.equal(1);
-        expect(session.certificationCenter).to.be.equal('Tour Gamma');
+        expect(session.id).to.be.equal(sessionId);
+        expect(session.certificationCenter).to.be.equal(certificationCenter.name);
         expect(session.address).to.be.equal('rue de Bercy');
         expect(session.room).to.be.equal('Salle A');
         expect(session.examiner).to.be.equal('Monsieur Examinateur');
-        expect(session.date).to.be.equal('2018-02-23');
-        expect(session.time).to.be.equal('12:00');
+        expect(moment(session.date).format('YYYY-MM-DD')).to.be.equal('2018-02-23');
         expect(session.description).to.be.equal('CertificationPix pour les jeunes');
         expect(session.accessCode).to.be.equal('NJR10');
       });
@@ -207,22 +213,18 @@ describe('Integration | Repository | Session', function() {
 
     it('should return associated certifications', function() {
       // when
-      const promise = sessionRepository.get(1);
+      const promise = sessionRepository.get(sessionId);
 
       // then
       return promise.then((session) => {
         expect(session.certifications).to.be.instanceOf(Array);
         expect(session.certifications.length).to.be.equal(2);
-        expect(session.certifications[0].attributes.id).to.be.equal(1);
-        expect(session.certifications[0].attributes.userId).to.be.equal(1);
-        expect(session.certifications[1].attributes.id).to.be.equal(2);
-        expect(session.certifications[1].attributes.userId).to.be.equal(2);
       });
     });
 
     it('should return a Not found error when no session was found', function() {
       // when
-      const promise = sessionRepository.get(2);
+      const promise = sessionRepository.get(sessionId + 1);
 
       // then
       return expect(promise).to.be.rejectedWith(NotFoundError);

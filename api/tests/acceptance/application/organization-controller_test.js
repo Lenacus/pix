@@ -356,9 +356,9 @@ describe('Acceptance | Application | organization-controller', () => {
     });
 
     afterEach(async () => {
+      await knex('snapshots').delete();
       await databaseBuilder.clean();
-      await knex('snapshots').delete()
-        .then(() => knex('organizations').delete());
+      await knex('organizations').delete();
     });
 
     it('should return 200 HTTP status code', () => {
@@ -387,58 +387,39 @@ describe('Acceptance | Application | organization-controller', () => {
 
   describe('GET /api/organizations/{id}/campaigns', () => {
 
-    const orga1Campaign1 = {
-      id: 1,
-      name: 'Quand Peigne numba one',
-      code: 'ATDGRK343',
-      organizationId: 1,
-      creatorId: 2,
-    };
+    context('Retrieve campaigns with campaignReports', () => {
 
-    const orga1Campaign2 = {
-      id: 2,
-      name: 'Quand Peigne numba two',
-      code: 'KFCTSU984',
-      organizationId: 1,
-      creatorId: 3,
-    };
+      let campaignsData;
+      let organizationId, otherOrganizationId;
+      let userId;
 
-    const orga2Campaign1 = {
-      id: 3,
-      name: 'Quand Peigne otha orga',
-      code: 'CPFTQX735',
-      organizationId: 2,
-      creatorId: 3,
-    };
-    const campaigns = [orga1Campaign1, orga1Campaign2, orga2Campaign1];
-
-    const campaignParticipation = {
-      campaignId: orga2Campaign1.id,
-      isShared: true
-    };
-
-    beforeEach(async () => {
-      campaigns.forEach((campaign) => {
-        databaseBuilder.factory.buildCampaign(campaign);
+      beforeEach(async () => {
+        userId = databaseBuilder.factory.buildUser({}).id;
+        organizationId = databaseBuilder.factory.buildOrganization({}).id;
+        otherOrganizationId = databaseBuilder.factory.buildOrganization({}).id;
+        campaignsData = _.map([
+          { name: 'Quand Peigne numba one', code: 'ATDGRK343', organizationId, },
+          { name: 'Quand Peigne numba two', code: 'KFCTSU984', organizationId, },
+          { name: 'Quand Peigne otha orga', code: 'CPFTQX735', organizationId: otherOrganizationId, },
+        ], (camp) => {
+          const builtCampaign = databaseBuilder.factory.buildCampaign(camp);
+          return { name: camp.name, code: camp.code, id: builtCampaign.id };
+        });
+        databaseBuilder.factory.buildCampaignParticipation({ campaignId: campaignsData[2].id, isShared: true });
+        await databaseBuilder.commit();
       });
 
-      databaseBuilder.factory.buildCampaignParticipation(campaignParticipation);
-      await databaseBuilder.commit();
-    });
+      afterEach(async () => {
+        await databaseBuilder.clean();
+      });
 
-    afterEach(async () => {
-      await databaseBuilder.clean();
-    });
-
-    context('Retrieve campaigns with campaignReports', () => {
       it('should return the organization campaigns', () => {
         // given
-        const organizationId = 1;
         const options = {
           method: 'GET',
           url: '/api/organizations/' + organizationId + '/campaigns',
           headers: {
-            authorization: generateValidRequestAuhorizationHeader()
+            authorization: generateValidRequestAuhorizationHeader(userId)
           },
         };
 
@@ -449,19 +430,18 @@ describe('Acceptance | Application | organization-controller', () => {
         return promise.then((response) => {
           const campaigns = response.result.data;
           expect(campaigns).to.have.lengthOf(2);
-          expect(_.map(campaigns, 'attributes.name')).to.have.members([orga1Campaign1.name, orga1Campaign2.name]);
-          expect(_.map(campaigns, 'attributes.code')).to.have.members([orga1Campaign1.code, orga1Campaign2.code]);
+          expect(_.map(campaigns, 'attributes.name')).to.have.members([campaignsData[0].name, campaignsData[1].name]);
+          expect(_.map(campaigns, 'attributes.code')).to.have.members([campaignsData[0].code, campaignsData[1].code]);
         });
       });
 
       it('should return the campaignReports with the campaigns', async () => {
         // given
-        const organizationId = 2;
         const options = {
           method: 'GET',
-          url: '/api/organizations/' + organizationId + '/campaigns',
+          url: '/api/organizations/' + otherOrganizationId + '/campaigns',
           headers: {
-            authorization: generateValidRequestAuhorizationHeader()
+            authorization: generateValidRequestAuhorizationHeader(userId)
           },
         };
 
@@ -473,8 +453,8 @@ describe('Acceptance | Application | organization-controller', () => {
           const campaigns = response.result.data;
           expect(campaigns).to.have.lengthOf(1);
           const campaignReport = response.result.included[0].attributes;
-          expect(campaignReport['participations-count']).to.equal(1);
-          expect(campaignReport['shared-participations-count']).to.equal(1);
+          expect(campaignReport['participations-count']).to.equal('1');
+          expect(campaignReport['shared-participations-count']).to.equal('1');
         });
       });
     });
@@ -685,11 +665,13 @@ describe('Acceptance | Application | organization-controller', () => {
         // given
         const nonPixMasterUserId = 9999;
         options.headers.authorization = generateValidRequestAuhorizationHeader(nonPixMasterUserId);
-
-        databaseBuilder.factory.buildUser.withMembership({
+        databaseBuilder.factory.buildUser({
           id: nonPixMasterUserId,
-          organizationId: organization.id,
-          organizationRole: Membership.roles.MEMBER
+        });
+        databaseBuilder.factory.buildMembership({
+          organizationRole : Membership.roles.MEMBER,
+          organizationId : organization.id,
+          userId : nonPixMasterUserId,
         });
 
         await databaseBuilder.commit();
@@ -800,11 +782,13 @@ describe('Acceptance | Application | organization-controller', () => {
         // given
         const nonPixMasterUserId = 9999;
         options.headers.authorization = generateValidRequestAuhorizationHeader(nonPixMasterUserId);
-
-        databaseBuilder.factory.buildUser.withMembership({
+        databaseBuilder.factory.buildUser({
           id: nonPixMasterUserId,
-          organizationId: organization.id,
-          organizationRole: Membership.roles.MEMBER
+        });
+        databaseBuilder.factory.buildMembership({
+          organizationRole : Membership.roles.MEMBER,
+          organizationId : organization.id,
+          userId : nonPixMasterUserId,
         });
 
         await databaseBuilder.commit();

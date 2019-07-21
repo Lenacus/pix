@@ -1,4 +1,4 @@
-const { expect, knex, generateValidRequestAuhorizationHeader } = require('../../../test-helper');
+const { expect, databaseBuilder, generateValidRequestAuhorizationHeader } = require('../../../test-helper');
 const createServer = require('../../../../server');
 
 const Membership = require('../../../../lib/domain/models/Membership');
@@ -6,49 +6,20 @@ const Membership = require('../../../../lib/domain/models/Membership');
 describe('Acceptance | Controller | users-controller-get-memberships', () => {
 
   let userId;
-  let organizationId;
   let membershipId;
+  let organizationId;
   const organizationRole = Membership.roles.MEMBER;
-
   let server;
 
   beforeEach(async () => {
     server = await createServer();
   });
 
+  afterEach(async () => {
+    await databaseBuilder.clean();
+  });
+
   describe('GET /users/:id/memberships', () => {
-
-    function _insertOrganization(userId) {
-      const organizationRaw = {
-        name: 'The name of the organization',
-        type: 'SUP',
-        code: 'AAA111',
-        userId,
-      };
-
-      return knex('organizations').insert(organizationRaw).returning('id');
-    }
-
-    function _insertUser() {
-      const userRaw = {
-        'firstName': 'john',
-        'lastName': 'Doe',
-        'email': 'john.Doe@internet.fr',
-        password: 'Pix2017!',
-      };
-
-      return knex('users').insert(userRaw).returning('id');
-    }
-
-    function _insertMemberships(organizationId, userId, organizationRole) {
-      const membershipRaw = {
-        organizationId,
-        userId,
-        organizationRole,
-      };
-
-      return knex('memberships').insert(membershipRaw).returning('id');
-    }
 
     function _options(userId) {
       return {
@@ -57,20 +28,26 @@ describe('Acceptance | Controller | users-controller-get-memberships', () => {
         headers: { authorization: generateValidRequestAuhorizationHeader(userId) },
       };
     }
+    beforeEach(async () => {
+      userId = databaseBuilder.factory.buildUser({}).id;
+      organizationId = databaseBuilder.factory.buildOrganization(
+        {
+          userId,
+          name: 'The name of the organization',
+          type: 'SUP',
+          code: 'AAA111',
+        }).id;
+      membershipId = databaseBuilder.factory.buildMembership({
+        userId,
+        organizationId,
+        organizationRole,
+      }).id;
 
-    beforeEach(() => {
-      return _insertUser()
-        .then(([id]) => userId = id)
-        .then(() => _insertOrganization(userId))
-        .then(([id]) => organizationId = id)
-        .then(() => _insertMemberships(organizationId, userId, Membership.roles.MEMBER))
-        .then(([id]) => membershipId = id);
+      await databaseBuilder.commit();
     });
 
-    afterEach(() => {
-      return knex('users').delete()
-        .then(() => knex('organizations').delete())
-        .then(() => knex('memberships').delete());
+    afterEach(async () => {
+      await databaseBuilder.clean();
     });
 
     it('should return found accesses with 200 HTTP status code', () => {

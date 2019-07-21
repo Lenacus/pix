@@ -8,7 +8,7 @@ describe('Acceptance | Controller | users-controller-reset-scorecard', () => {
   let options;
   let server;
 
-  const userId = 1234;
+  let userId;
   const competenceId = 'recAbe382T0e1337';
 
   function inspectCompetenceEvaluationInDb({ userId, competenceId }) {
@@ -31,6 +31,8 @@ describe('Acceptance | Controller | users-controller-reset-scorecard', () => {
   }
 
   beforeEach(async () => {
+    userId = databaseBuilder.factory.buildUser().id;
+    await databaseBuilder.commit();
 
     options = {
       method: 'POST',
@@ -39,6 +41,11 @@ describe('Acceptance | Controller | users-controller-reset-scorecard', () => {
       headers: {},
     };
     server = await createServer();
+  });
+
+  afterEach(async () => {
+    await knex('assessments').delete();
+    await databaseBuilder.clean();
   });
 
   describe('POST /users/{id}/competences/{id}/reset', () => {
@@ -106,7 +113,6 @@ describe('Acceptance | Controller | users-controller-reset-scorecard', () => {
 
       beforeEach(async () => {
         options.headers.authorization = generateValidRequestAuhorizationHeader(userId);
-        databaseBuilder.factory.buildUser({ id: userId });
 
         sinon.useFakeTimers({
           now: new Date('2019-01-10'),
@@ -130,27 +136,27 @@ describe('Acceptance | Controller | users-controller-reset-scorecard', () => {
 
         _.each([
           {
-            assessment: { id: 1, userId, },
-            competenceEvaluation: { id: 111, competenceId, userId, status: 'started' },
+            assessment: { userId, },
+            competenceEvaluation: { competenceId, userId, status: 'started' },
             knowledgeElements: [
-              { id: 1, skillId: 'web1', status: 'validated', source: 'direct', competenceId, earnedPix: 1, createdAt, },
-              { id: 2, skillId: 'web2', status: 'invalidated', source: 'direct', competenceId, earnedPix: 2, createdAt, },
-              { id: 3, skillId: 'web4', status: 'invalidated', source: 'inferred', competenceId, earnedPix: 4, createdAt, },
-              { id: 4, skillId: 'url2', status: 'validated', source: 'direct', competenceId, earnedPix: 4, createdAt, },
+              { skillId: 'web1', status: 'validated', source: 'direct', competenceId, earnedPix: 1, createdAt, },
+              { skillId: 'web2', status: 'invalidated', source: 'direct', competenceId, earnedPix: 2, createdAt, },
+              { skillId: 'web4', status: 'invalidated', source: 'inferred', competenceId, earnedPix: 4, createdAt, },
+              { skillId: 'url2', status: 'validated', source: 'direct', competenceId, earnedPix: 4, createdAt, },
             ]
           },
           {
-            assessment: { id: 2, userId, },
-            competenceEvaluation: { id: 222, competenceId: otherStartedCompetenceId, userId, status: 'started' },
+            assessment: { userId, },
+            competenceEvaluation: { competenceId: otherStartedCompetenceId, userId, status: 'started' },
             knowledgeElements: [
-              { id: 5, skillId: 'rechInfo3', status: 'validated', source: 'direct', competenceId: otherStartedCompetenceId, earnedPix: 3, createdAt, },
+              { skillId: 'rechInfo3', status: 'validated', source: 'direct', competenceId: otherStartedCompetenceId, earnedPix: 3, createdAt, },
             ]
           },
           {
-            assessment: { id: 3, userId, type: 'SMART_PLACEMENT' },
-            campaignParticipation: { id: 111, assessmentId: 3, campaignId: campaign.id, isShared: false },
+            assessment: { userId, type: 'SMART_PLACEMENT' },
+            campaignParticipation: { campaignId: campaign.id, isShared: false },
             knowledgeElements: [
-              { id: 6, skillId: 'url1', status: 'validated', source: 'direct', competenceId, earnedPix: 2, createdAt, },
+              { skillId: 'url1', status: 'validated', source: 'direct', competenceId, earnedPix: 2, createdAt, },
             ]
           }
         ], ({ assessment, competenceEvaluation, knowledgeElements, campaignParticipation }) => {
@@ -164,13 +170,16 @@ describe('Acceptance | Controller | users-controller-reset-scorecard', () => {
       });
 
       afterEach(async () => {
-        await databaseBuilder.clean();
         await knex('knowledge-elements').delete();
+        await knex('answers').delete();
+        await knex('campaign-participations').delete();
+        await knex('competence-evaluations').delete();
         await knex('assessments').delete();
+        await databaseBuilder.clean();
         airtableBuilder.cleanAll();
       });
 
-      it('should return 200 and the updated scorecard', async () => {
+      it ('should return 200 and the updated scorecard', async () => {
         // given
         const expectedScorecardJSONApi = {
           data: {

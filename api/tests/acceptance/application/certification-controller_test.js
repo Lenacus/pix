@@ -93,8 +93,7 @@ describe('Acceptance | API | Certifications', () => {
             type: 'certifications',
             id: certificationId.toString(),
             attributes: {
-              // TODO Bug birthdate UTC+1
-              'birthdate': new Date('1993-12-08'),
+              'birthdate': new Date('1993-12-08T00:00:00Z'),
               'birthplace': 'Asnières IZI',
               'certification-center': 'Université du Pix',
               'comment-for-candidate': null,
@@ -425,7 +424,6 @@ describe('Acceptance | API | Certifications', () => {
       const expectedBody = {
         'data': {
           'attributes': {
-            // TODO Bug birthdate UTC+1
             'birthdate': new Date('1989-10-24T00:00:00Z'),
             'birthplace': 'Earth',
             'certification-center': 'Université du Pix',
@@ -563,7 +561,7 @@ describe('Acceptance | API | Certifications', () => {
       firstName: 'John',
       lastName: 'Doe',
       birthplace: 'Earth',
-      birthdate: new Date('1991-10-24'),
+      birthdate: new Date('1991-10-24T00:00:00Z'),
       completedAt: new Date('2003-01-02T01:02:03Z'),
       sessionId: 1,
       isPublished: false,
@@ -638,8 +636,7 @@ describe('Acceptance | API | Certifications', () => {
             type: 'certifications',
             id: JOHN_CERTIFICATION_ID.toString(),
             attributes: {
-              // TODO Bug birthdate UTC+1
-              'birthdate': new Date('1991-10-24'),
+              'birthdate': new Date('1991-10-24T00:00:00Z'),
               'birthplace': 'Earth',
               'certification-center': 'Université du Pix',
               'comment-for-candidate': null,

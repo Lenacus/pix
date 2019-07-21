@@ -90,13 +90,16 @@ describe('Acceptance | Controller | session-controller', () => {
     let request;
 
     beforeEach(() => {
+      const certifCenter1Id = databaseBuilder.factory.buildCertificationCenter({ name: 'Centre 1' }).id;
+      const certifCenter2Id = databaseBuilder.factory.buildCertificationCenter({ name: 'Centre 2' }).id;
       databaseBuilder.factory.buildSession({
         id: 1,
         certificationCenter: 'Centre 1',
+        certificationCenterId: certifCenter1Id,
         address: 'Paris',
         room: 'Salle 1',
         examiner: 'Bernard',
-        date: '2017-12-08',
+        date: new Date('2017-12-08'),
         time: '14:30',
         accessCode: 'ABC123',
         description: '',
@@ -106,10 +109,11 @@ describe('Acceptance | Controller | session-controller', () => {
       databaseBuilder.factory.buildSession({
         id: 2,
         certificationCenter: 'Centre 2',
+        certificationCenterId: certifCenter2Id,
         address: 'Lyon',
         room: 'Salle 2',
         examiner: 'Bernard',
-        date: '2017-12-08',
+        date: new Date('2017-12-08'),
         time: '14:30',
         accessCode: 'DEF456',
         description: '',
@@ -150,11 +154,11 @@ describe('Acceptance | Controller | session-controller', () => {
             'access-code': 'ABC123',
             'address': 'Paris',
             'certification-center': 'Centre 1',
-            'date': '2017-12-08',
+            'date': new Date('2017-12-08T00:00:00Z'),
             'description': '',
             'examiner': 'Bernard',
             'room': 'Salle 1',
-            'time': '14:30'
+            'time': '14:30:00'
           },
           'relationships': {
             'certifications': {
@@ -168,11 +172,11 @@ describe('Acceptance | Controller | session-controller', () => {
             'access-code': 'DEF456',
             'address': 'Lyon',
             'certification-center': 'Centre 2',
-            'date': '2017-12-08',
+            'date': new Date('2017-12-08T00:00:00Z'),
             'description': '',
             'examiner': 'Bernard',
             'room': 'Salle 2',
-            'time': '14:30'
+            'time': '14:30:00'
           },
           'relationships': {
             'certifications': {
@@ -223,8 +227,8 @@ describe('Acceptance | Controller | session-controller', () => {
     });
 
     afterEach(async () => {
+      await knex('sessions').delete();
       await databaseBuilder.clean();
-      return knex('sessions').delete();
     });
 
     it('should return an OK status after saving in database', () => {

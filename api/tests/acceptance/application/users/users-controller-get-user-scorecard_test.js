@@ -7,25 +7,27 @@ describe('Acceptance | Controller | users-controller-get-user-scorecards', () =>
 
   let options;
   let server;
-  const userId = 1234;
+  let userId;
 
   beforeEach(async () => {
 
     // TODO: find the other test that leaks and force us to flush the cache
     cache.flushAll();
+    userId = databaseBuilder.factory.buildUser({}).id;
+    await databaseBuilder.commit();
 
     options = {
       method: 'GET',
-      url: '/api/users/1234/scorecards',
+      url: '/api/users/' + userId + '/scorecards',
       payload: {},
       headers: {},
     };
     server = await createServer();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     airtableBuilder.cleanAll();
-    return databaseBuilder.clean();
+    await databaseBuilder.clean();
   });
 
   after(() => {
@@ -63,7 +65,7 @@ describe('Acceptance | Controller | users-controller-get-user-scorecards', () =>
       const competenceReference = '1.1 Mener une recherche et une veille d’information';
 
       beforeEach(async () => {
-        options.headers.authorization = generateValidRequestAuhorizationHeader();
+        options.headers.authorization = generateValidRequestAuhorizationHeader(userId);
 
         competence = airtableBuilder.factory.buildCompetence({
           id: competenceId,
