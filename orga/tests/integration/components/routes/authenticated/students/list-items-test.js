@@ -9,8 +9,8 @@ module('Integration | Component | routes/authenticated/students | list-items', f
   test('it should display a list of students', async function(assert) {
     // given
     const students = [
-      { student: { lastName: 'La Terreur', firstName: 'Gigi', grade: 'CM1', birthDate: new Date('2010-02-01')  } },
-      { student: { lastName: 'L\'asticot', firstName: 'Gogo', grade: 'CM1', birthDate: new Date('2010-05-10')  } },
+      { lastName: 'La Terreur', firstName: 'Gigi', grade: 'CM1', birthDate: new Date('2010-02-01') },
+      { lastName: 'L\'asticot', firstName: 'Gogo', grade: 'CM1', birthDate: new Date('2010-05-10') },
     ];
 
     this.set('students', students);
@@ -26,8 +26,8 @@ module('Integration | Component | routes/authenticated/students | list-items', f
   test('it should display the firstName,  lastName, grade and  birthDate of student', async function(assert) {
     // given
     const students = [
-      { student: { lastName: 'La Terreur', firstName: 'Gigi', grade: 'CM1', birthDate: new Date('2010-02-01')  } },
-      { student: { lastName: 'L\'asticot', firstName: 'Gogo', grade: 'CM1', birthDate: new Date('2010-05-10')  } },
+      { lastName: 'La Terreur', firstName: 'Gigi', grade: 'CM1', birthDate: new Date('2010-02-01') },
+      { lastName: 'L\'asticot', firstName: 'Gogo', grade: 'CM1', birthDate: new Date('2010-05-10') },
     ];
 
     this.set('students', students);
@@ -39,7 +39,7 @@ module('Integration | Component | routes/authenticated/students | list-items', f
     assert.dom('.table tbody tr:first-child td:first-child').hasText('La Terreur');
     assert.dom('.table tbody tr:first-child td:nth-child(2)').hasText('Gigi');
     assert.dom('.table tbody tr:first-child td:nth-child(3)').hasText('CM1');
-    assert.dom('.table tbody tr:first-child td:last-child').hasText('2010-02-01git ');
+    assert.dom('.table tbody tr:first-child td:last-child').hasText('01/02/2010');
   });
 
 });

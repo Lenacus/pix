@@ -6,7 +6,7 @@
         <th>Nom</th>
         <th>Prénom</th>
         <th>Classe</th>
-        <th>date de naissance</th>
+        <th>Date de naissance</th>
       </tr>
       </thead>
 
@@ -16,6 +16,8 @@
           <tr>
             <td>{{student.lastName}}</td>
             <td>{{student.firstName}}</td>
+            <td>{{student.grade}}</td>
+            <td>{{moment-format student.birthDate 'DD/MM/YYYY' allow-empty=true}}</td>
           </tr>
         {{/each}}
 

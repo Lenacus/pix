@@ -4,5 +4,6 @@ export default DS.Model.extend({
   lastName: DS.attr('string'),
   firstName: DS.attr('string'),
   grade: DS.attr('string'),
-  birthDate: DS.attr('date')
+  birthDate: DS.attr('date'),
+  organization: DS.belongsTo('organization'),
 });
