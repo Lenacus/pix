@@ -61,7 +61,7 @@ describe('Compute missing certification v2 scores', () => {
     await databaseBuilder.clean();
   });
 
-  it('should not update the assessment-result if the certification-course is V1', async () => {
+  it('should not create a new assessment-result if the certification-course is V1', async () => {
     // given
     const certificationCourseId = buildCertificationCourse({ candidatId, isV2Certification: false, createdAt }).id;
     const assessmentId = buildAssessment({ candidatId, state, type, courseId: certificationCourseId }).id;
@@ -105,7 +105,7 @@ describe('Compute missing certification v2 scores', () => {
     expect(pixScore).to.equal(score.nbPix);
   });
 
-  it('should update the assessment result as validated when the assessment already has one', async () => {
+  it('should create a new assessment result as validated when the assessment already has one', async () => {
     // given
     const certificationCourseId = buildCertificationCourse({ candidatId, isV2Certification: true, createdAt }).id;
     const assessmentId = buildAssessment({ candidatId, state, type, courseId: certificationCourseId }).id;
@@ -117,12 +117,14 @@ describe('Compute missing certification v2 scores', () => {
 
     // then
     const assessmentResults = (await knex('assessment-results').where({ assessmentId }));
-    expect(assessmentResults).to.have.lengthOf(1);
+    expect(assessmentResults).to.have.lengthOf(2);
     expect(assessmentResults[0].id).to.equal(assessmentResultId);
-    expect(assessmentResults[0].status).to.equal('validated');
+    expect(assessmentResults[0].status).to.equal('error');
+    expect(assessmentResults[1].id).not.to.equal(assessmentResultId);
+    expect(assessmentResults[1].status).to.equal('validated');
   });
 
-  it('should create the expected competence-marks after deleting the old ones if any', async () => {
+  it('should create the expected competence-marks without deleting the old ones if any', async () => {
     // given
     const certificationCourseId = buildCertificationCourse({ candidatId, isV2Certification: true, createdAt }).id;
     const assessmentId = buildAssessment({ candidatId, state, type, courseId: certificationCourseId }).id;
@@ -135,8 +137,10 @@ describe('Compute missing certification v2 scores', () => {
 
     // then
     const competenceMarks = await knex('competence-marks');
-    expect(competenceMarks).to.have.lengthOf(2);
-    expect(competenceMarks[0].area_code).to.equal('42');
+    expect(competenceMarks).to.have.lengthOf(12);
+    expect(competenceMarks[9].area_code).not.to.equal('42');
+    expect(competenceMarks[10].area_code).to.equal('42');
+    expect(competenceMarks[11].area_code).to.equal('42');
   });
 
   it('should not update the certification course completion date', async () => {

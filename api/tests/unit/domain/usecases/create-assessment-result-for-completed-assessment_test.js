@@ -318,45 +318,6 @@ describe('Unit | UseCase | create-assessment-result-for-completed-certification'
     });
   });
 
-  it('should update the correct assessment-result if it exists', () => {
-    // given
-    const assessmentResultId = 1;
-    const wrongLevel = 0;
-    const wrongNbPix = 1;
-
-    const assessmentResult = domainBuilder.buildAssessmentResult({
-      level: wrongLevel,
-      pixScore: wrongNbPix,
-      emitter: 'PIX-ALGO',
-      commentForJury: 'Computed',
-      status: 'validated',
-      assessmentId: assessmentId,
-    });
-
-    sinon.stub(assessmentResultRepository, 'get').withArgs(assessmentResultId).resolves(assessmentResult);
-
-    // when
-    const promise = createAssessmentResultForCompletedAssessment({
-      assessmentId,
-      assessmentResultId,
-      assessmentResultRepository,
-      assessmentRepository,
-      certificationCourseRepository,
-      competenceMarkRepository,
-      scoringService,
-    });
-
-    // then
-    return promise.then(() => {
-      expect(assessmentResultRepository.save).to.have.been.calledWithMatch(
-        Object.assign({}, assessmentResult, {
-          level: assessmentScore.level,
-          pixScore: assessmentScore.nbPix
-        })
-      );
-    });
-  });
-
   context('when the assessment is a PLACEMENT', () => {
 
     it('should save the evaluated competence', () => {

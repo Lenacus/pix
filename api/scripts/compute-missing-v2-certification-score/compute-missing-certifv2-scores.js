@@ -6,10 +6,6 @@ const { knex } = require('../../db/knex-database-connection');
 
 const createAssessmentResultForCompletedAssessment = require('../../lib/domain/usecases/create-assessment-result-for-completed-assessment');
 
-async function _removeCompetenceMarksByAssessmentResultId(assessmentResultId) {
-  await knex('competence-marks').where({ assessmentResultId }).delete();
-}
-
 async function recomputeCertificationCoursesV2({
   // Repositories
   answerRepository,
@@ -24,33 +20,32 @@ async function recomputeCertificationCoursesV2({
   // Services
   scoringService
 }) {
-  const queryResults = await _getAssessmentIdsAndResultsIdsToRecompute();
-  for (const [assessmentId, assessmentResultId] of queryResults) {
+  let updatedCount = 0;
+  const assessmentIds = await _getAssessmentIdsToRecompute();
+  for (const assessmentId of assessmentIds) {
+    const progress = `(${++updatedCount}/${assessmentIds.length})`;
     try {
-      await _removeCompetenceMarksByAssessmentResultId(assessmentResultId);
       await createAssessmentResultForCompletedAssessment({
         ...arguments[0],
-        ...{ assessmentId, assessmentResultId, forceRecomputeResult: true, updateCertificationCompletionDate: false }
+        ...{ assessmentId, forceRecomputeResult: true, updateCertificationCompletionDate: false }
       });
+      console.log(`The assessment ${assessmentId} was successfully updated ${progress}`);
     } catch (err) {
-      console.log(`Unable to recompute assessment result for assessmentId : ${assessmentId}`);
+      console.log(`Unable to recompute assessment result for assessmentId : ${assessmentId} ${progress}`);
       console.error(err);
     }
   }
 }
 
-async function _getAssessmentIdsAndResultsIdsToRecompute() {
+async function _getAssessmentIdsToRecompute() {
   try {
     const queryResults = await knex
-      .select('assessments.id as assessmentId', 'assessment-results.id as assessmentResultId')
+      .select('assessments.id as assessmentId')
       .from('assessments')
       .join('certification-courses', 'assessments.courseId', '=', knex.raw('cast("certification-courses".id as varchar)'))
-      .leftOuterJoin('assessment-results', 'assessments.id', '=', 'assessment-results.assessmentId')
       .where('certification-courses.isV2Certification', true);
 
-    return _.map(queryResults, (queryResult) => {
-      return [queryResult.assessmentId, queryResult.assessmentResultId];
-    });
+    return _.map(queryResults, 'assessmentId');
 
   } catch (err) {
     console.log('Unable to compute assessment ids');
