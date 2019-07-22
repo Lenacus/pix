@@ -1,0 +1,30 @@
+<div class="panel">
+  <div class="table content-text content-text--small">
+    <table>
+      <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Classe</th>
+        <th>date de naissance</th>
+      </tr>
+      </thead>
+
+      {{#if students}}
+        <tbody>
+        {{#each students as |student|}}
+          <tr>
+            <td>{{student.lastName}}</td>
+            <td>{{student.firstName}}</td>
+          </tr>
+        {{/each}}
+
+        </tbody>
+      {{/if}}
+    </table>
+
+    {{#unless students}}
+      <div class="table__empty content-text">En attente d'élèves</div>
+    {{/unless}}
+  </div>
+</div>
