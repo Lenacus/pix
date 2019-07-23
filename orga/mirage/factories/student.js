@@ -10,6 +10,14 @@ export default Factory.extend({
     return faker.name.lastName();
   },
 
+  grade() {
+    return 'CM1';
+  },
+
+  birthDate() {
+    return faker.date.past(12);
+  },
+
   organization: association(),
 
 });

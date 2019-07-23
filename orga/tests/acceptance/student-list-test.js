@@ -1,4 +1,4 @@
-import { module, test, only } from 'qunit';
+import { module, test } from 'qunit';
 import { currentURL, visit } from '@ember/test-helpers';
 import { setupApplicationTest } from 'ember-qunit';
 import { authenticateSession } from 'ember-simple-auth/test-support';
@@ -51,10 +51,10 @@ module('Acceptance | Student List', function(hooks) {
       await visit('/eleves');
 
       // then
-      assert.dom('.page-title').hasText('Éleves');
+      assert.dom('.page-title').hasText('Élèves');
     });
 
-    only('it should list the students', async function(assert) {
+    test('it should list the students', async function(assert) {
       // given
       user = createUserWithMembershipAndTermsOfServiceAccepted();
       await authenticateSession({
@@ -68,7 +68,7 @@ module('Acceptance | Student List', function(hooks) {
       await visit('/eleves');
 
       // then
-      assert.dom('.table tbody tr').exists({ count: 1 });
+      assert.dom('.table tbody tr').exists({ count: 6 });
     });
   });
 });
