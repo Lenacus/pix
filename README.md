@@ -30,7 +30,7 @@ Vous devez au préalable avoir correctement installé les logiciels suivants :
 **1/ Récupérer le code source**
 
 ```bash
-$ git clone git@github.com:1024pix/pix.git && cd pix
+$ git clone https://github.com/1024pix/pix.git && cd pix
 ```
 
 **2/ Lancer le script de configuration de l'environnement**
