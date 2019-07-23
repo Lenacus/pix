@@ -2,7 +2,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 
 export default Component.extend({
-  certificationCandidatesImporterService: service('certification-candidates-importer'),
+  certificationCandidatesImporter: service(),
 
   actions: {
     uploadOdsFile(odsFile) {
