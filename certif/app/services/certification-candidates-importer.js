@@ -7,10 +7,6 @@ import moment from 'moment';
 export default Service.extend({
   store: service(),
 
-  init() {
-    this._super(...arguments);
-  },
-
   async handleCertificationCandidatesImport(session, certificationCandidatesRaw) {
     if (session.hasMany('certificationCandidates').ids().length > 0) {
       try {
